@@ -1,0 +1,26 @@
+{
+  "locale": {
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "common": {
+    "appName": "TH Expense",
+    "welcome": "Chào mừng trở lại"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "forgotPassword": "Quên mật khẩu?",
+    "loginTitle": "Đăng nhập vào tài khoản",
+    "loginButton": "Đăng nhập",
+    "welcomeBack": "Chào mừng trở lại",
+    "welcomeSubtitle": "welcomeSubtitle",
+    "continueWithGoogle": "Tiếp tục với Google",
+    "loginFooter": "loginFooter",
+    "errors": {
+      "google_login_failed": "Đăng nhập Google thất bại. Vui lòng thử lại."
+    }
+  }
+}

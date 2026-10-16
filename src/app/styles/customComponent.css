@@ -1,0 +1,26 @@
+/* Input component */
+.input,
+.textarea,
+.checkbox__control,
+.select__trigger,
+.date-input-group {
+  @apply border-border border bg-transparent shadow-none;
+
+  &:hover,
+  &[data-hovered='true'] {
+    @apply border-accent! bg-transparent!;
+  }
+
+  &:focus-visible,
+  &[data-focus-visible='true'] {
+    @apply border-accent bg-transparent!;
+  }
+
+  &[data-invalid='true'] {
+    @apply border-danger! bg-transparent!;
+  }
+
+  &:focus-within {
+    @apply ring-accent! border! ring-1!;
+  }
+}

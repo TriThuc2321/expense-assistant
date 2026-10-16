@@ -1,0 +1,26 @@
+{
+  "locale": {
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "common": {
+    "appName": "TH Expense",
+    "welcome": "Welcome back"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "loginTitle": "Sign in to your account",
+    "loginButton": "Sign in",
+    "welcomeBack": "Welcome back",
+    "welcomeSubtitle": "welcomeSubtitle",
+    "continueWithGoogle": "Continue with Google",
+    "loginFooter": "loginFooter",
+    "errors": {
+      "google_login_failed": "Google sign-in failed. Please try again."
+    }
+  }
+}

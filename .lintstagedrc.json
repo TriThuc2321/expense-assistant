@@ -1,0 +1,7 @@
+{
+  "*.{js,jsx,mjs,cjs,ts,tsx}": [
+    "oxlint --fix --max-warnings=10",
+    "oxfmt --write"
+  ],
+  "*.{json,jsonc,css,md,mdx,yml,yaml}": ["oxfmt --write"]
+}

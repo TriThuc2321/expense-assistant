@@ -1,0 +1,84 @@
+@import '@heroui/styles';
+@import './customComponent.css' layer(components);
+
+:root,
+.light,
+.default,
+[data-theme='light'],
+[data-theme='default'] {
+  --accent: oklch(53.67% 0.2162 27.84);
+  --accent-foreground: oklch(99.11% 0 0);
+  --background: oklch(97.02% 0.0018 27.74);
+  --border: oklch(84.522% 0.0001 271.152);
+  --danger: oklch(43.46% 0.1757 27.74);
+  --danger-foreground: oklch(98% 0.0194 27.64);
+  --default: oklch(96.416% 0.00011 271.152);
+  --default-foreground: oklch(21.03% 0.0059 27.99);
+  --field-background: oklch(100% 0 27.99);
+  --field-foreground: oklch(21.03% 0 27.99);
+  --field-placeholder: oklch(55.17% 0 27.99);
+  --focus: oklch(58.14% 0.2349 27.99);
+  --foreground: oklch(21.03% 0 27.99);
+  --muted: oklch(55.17% 0 27.99);
+  --overlay: oklch(100% 0 27.99);
+  --overlay-foreground: oklch(21.03% 0 27.99);
+  --scrollbar: oklch(87.1% 0 27.99);
+  --segment: oklch(100% 0 27.99);
+  --segment-foreground: oklch(21.03% 0 27.99);
+  --separator: oklch(92% 0 27.99);
+  --success: oklch(73.31% 0.1932 150.75);
+  --success-foreground: oklch(15% 0.03 150.75);
+  --surface: oklch(100% 0 27.99);
+  --surface-foreground: oklch(21.03% 0 27.99);
+  --surface-secondary: oklch(95.24% 0 27.99);
+  --surface-secondary-foreground: oklch(21.03% 0 27.99);
+  --surface-tertiary: oklch(93.73% 0 27.99);
+  --surface-tertiary-foreground: oklch(21.03% 0 27.99);
+  --warning: oklch(78.48% 0.159 72.51);
+  --warning-foreground: oklch(15% 0.03 72.51);
+
+  --radius: 0.25rem;
+  --field-radius: 0.5rem;
+
+  --font-sans: var(--font-inter);
+}
+
+.dark,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --accent: oklch(48.094% 0.18947 27.004);
+  --accent-foreground: oklch(99.11% 0 0);
+  --background: oklch(14.5% 0.022 268);
+  --border: oklch(28% 0.032 268);
+  --danger: oklch(52% 0.2 28.56);
+  --danger-foreground: oklch(98% 0.015 28.56);
+  --default: oklch(26% 0.028 268);
+  --default-foreground: oklch(94% 0.008 55);
+  --field-background: oklch(19% 0.024 266);
+  --field-foreground: oklch(94% 0.008 55);
+  --field-placeholder: oklch(58% 0.012 50);
+  --focus: oklch(58.14% 0.2349 27.99);
+  --foreground: oklch(94% 0.008 55);
+  --muted: oklch(60% 0.014 48);
+  --overlay: oklch(19% 0.024 266);
+  --overlay-foreground: oklch(94% 0.008 55);
+  --scrollbar: oklch(35% 0.028 266);
+  --segment: oklch(30% 0.03 267);
+  --segment-foreground: oklch(94% 0.008 55);
+  --separator: oklch(23% 0.026 267);
+  --success: oklch(68% 0.172 148);
+  --success-foreground: oklch(14% 0.04 148);
+  --surface: oklch(19.5% 0.026 270);
+  --surface-foreground: oklch(94% 0.008 55);
+  --surface-secondary: oklch(23.5% 0.029 269);
+  --surface-secondary-foreground: oklch(94% 0.008 55);
+  --surface-tertiary: oklch(21.5% 0.027 268);
+  --surface-tertiary-foreground: oklch(94% 0.008 55);
+  --warning: oklch(76% 0.148 68);
+  --warning-foreground: oklch(14% 0.04 68);
+}
+
+[data-theme='dark'] [data-hide-on-theme='dark'],
+[data-theme='light'] [data-hide-on-theme='light'] {
+  display: none;
+}
