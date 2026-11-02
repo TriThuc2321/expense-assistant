@@ -25,7 +25,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  allowedDevOrigins: ['student.myenglish.com'],
+  // Zalo webhooks need a public HTTPS URL, so dev runs behind a tunnel.
+  allowedDevOrigins: process.env.DEV_TUNNEL_HOST
+    ? [process.env.DEV_TUNNEL_HOST]
+    : [],
 };
 
 const withBundleAnalyzer = bundleAnalyzer({

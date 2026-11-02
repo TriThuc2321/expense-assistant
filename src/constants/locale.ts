@@ -4,5 +4,5 @@ export enum LOCALE {
 }
 
 export const LOCALES = [LOCALE.EN, LOCALE.VI] as const;
-export const DEFAULT_LOCALE = LOCALE.EN;
+export const DEFAULT_LOCALE = LOCALE.VI;
 export const LOCALE_COOKIE = 'NEXT_LOCALE';
