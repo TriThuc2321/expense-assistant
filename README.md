@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TH Expense
 
-## Getting Started
+Web app quản lý chi tiêu cá nhân và nhóm, tích hợp bot Zalo: nhắn tin hoặc gửi ảnh hóa đơn vào nhóm Zalo, bot tự đọc và ghi chi tiêu.
 
-First, run the development server:
+## Stack
+
+Next.js 16 (App Router) · HeroUI v3 · Tailwind 4 · Postgres + Drizzle · better-auth · Claude API · Cloudflare R2
+
+## Chạy local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.example .env.local   # điền các biến
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Webhook Zalo cần URL HTTPS công khai, dev dùng ngrok với domain tĩnh (làm một lần):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. `brew install ngrok`, đăng ký tài khoản ngrok rồi chạy `ngrok config add-authtoken <token>`
+2. Lấy static domain miễn phí tại dashboard ngrok → **Domains**
+3. Đặt `DEV_TUNNEL_HOST=<domain>` trong `.env.local`
+4. Cấu hình webhook của bot thành `https://<domain>/api/zalo/webhook`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Sau đó chạy song song với `pnpm dev`:
 
-## Learn More
+```bash
+pnpm tunnel
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Lệnh             | Mô tả                            |
+| ---------------- | -------------------------------- |
+| `pnpm dev`       | Dev server                       |
+| `pnpm tunnel`    | Mở tunnel HTTPS cho webhook Zalo |
+| `pnpm lint`      | oxlint                           |
+| `pnpm format`    | oxfmt                            |
+| `pnpm typecheck` | Kiểm tra kiểu                    |
+| `pnpm build`     | Build production                 |

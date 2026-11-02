@@ -42,6 +42,6 @@ export const metadata: Metadata = {
       default: 'TH Expense',
     },
     description: 'TH Expense Dashboard',
-    images: ['/images/logo.jpeg'],
+    images: ['/images/logo.png'],
   },
 };
