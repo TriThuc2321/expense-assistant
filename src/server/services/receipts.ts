@@ -1,11 +1,5 @@
-import {
-  DeleteObjectCommand,
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { randomUUID } from 'node:crypto';
 
 import { env } from '@/configs/env';
 
@@ -18,13 +12,6 @@ export type ReceiptMediaType =
 export const MAX_ZALO_IMAGE_BYTES = 10 * 1024 * 1024;
 // Anthropic rejects image blocks over 5 MB.
 export const MAX_CLAUDE_IMAGE_BYTES = 5 * 1024 * 1024;
-
-const EXTENSIONS: Record<ReceiptMediaType, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/gif': 'gif',
-  'image/webp': 'webp',
-};
 
 function startsWith(bytes: Uint8Array, prefix: number[], offset = 0) {
   return prefix.every((b, i) => bytes[offset + i] === b);
@@ -58,33 +45,6 @@ function getClient() {
     });
   }
   return client;
-}
-
-export async function putReceipt(
-  userId: string,
-  bytes: Buffer,
-  mediaType: ReceiptMediaType,
-): Promise<string> {
-  const key = `receipts/${userId}/${randomUUID()}.${EXTENSIONS[mediaType]}`;
-  await getClient().send(
-    new PutObjectCommand({
-      Bucket: env().R2_BUCKET,
-      Key: key,
-      Body: bytes,
-      ContentType: mediaType,
-    }),
-  );
-  return key;
-}
-
-export async function deleteReceipt(key: string): Promise<void> {
-  try {
-    await getClient().send(
-      new DeleteObjectCommand({ Bucket: env().R2_BUCKET, Key: key }),
-    );
-  } catch (error) {
-    console.error('deleteReceipt failed', key, error);
-  }
 }
 
 export function receiptUrl(key: string): Promise<string> {

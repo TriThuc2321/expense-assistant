@@ -1,9 +1,6 @@
-import { S3Client } from '@aws-sdk/client-s3';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { putReceipt, sniffMediaType } from './receipts';
-
-afterEach(() => vi.restoreAllMocks());
+import { sniffMediaType } from './receipts';
 
 describe('sniffMediaType', () => {
   it('recognises the four image types and rejects others', () => {
@@ -22,23 +19,5 @@ describe('sniffMediaType', () => {
       sniffMediaType(new TextEncoder().encode('RIFF1234WAVEfmt ')),
     ).toBeNull();
     expect(sniffMediaType(Uint8Array.of(1, 2, 3))).toBeNull();
-  });
-});
-
-describe('putReceipt', () => {
-  it('writes under receipts/{userId}/ with the media type', async () => {
-    const send = vi
-      .spyOn(S3Client.prototype, 'send')
-      .mockImplementation(async () => ({}) as never);
-    const key = await putReceipt('u1', Buffer.from('x'), 'image/png');
-    expect(key).toMatch(/^receipts\/u1\/[0-9a-f-]{36}\.png$/);
-    const cmd = send.mock.calls[0][0] as unknown as {
-      input: { Bucket: string; Key: string; ContentType: string };
-    };
-    expect(cmd.input).toMatchObject({
-      Bucket: 'test-bucket',
-      Key: key,
-      ContentType: 'image/png',
-    });
   });
 });

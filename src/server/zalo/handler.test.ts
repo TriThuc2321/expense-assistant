@@ -10,7 +10,6 @@ import {
   resolveCategorySlug,
 } from '@/server/services/categories';
 import { quickParseToInput } from '@/server/services/quick-entry';
-import { deleteReceipt, putReceipt } from '@/server/services/receipts';
 import {
   createTransaction,
   undoLatestZaloTransaction,
@@ -45,8 +44,6 @@ vi.mock('@/server/services/categories', () => ({
   resolveCategorySlug: vi.fn(),
 }));
 vi.mock('@/server/services/receipts', () => ({
-  putReceipt: vi.fn(),
-  deleteReceipt: vi.fn(),
   MAX_CLAUDE_IMAGE_BYTES: 5 * 1024 * 1024,
 }));
 vi.mock('@/server/ai/parse-text', () => ({ parseText: vi.fn() }));
@@ -123,7 +120,6 @@ beforeEach(() => {
   );
   vi.mocked(listCategories).mockResolvedValue(CATEGORIES);
   vi.mocked(resolveCategorySlug).mockResolvedValue('id:shop.goods');
-  vi.mocked(putReceipt).mockResolvedValue('receipts/user-1/r.jpg');
   vi.mocked(downloadImage).mockResolvedValue({
     ok: true,
     bytes: JPEG,
@@ -312,7 +308,7 @@ describe('handleZaloUpdate', () => {
     ]);
   });
 
-  it('creates a receipt tx with receiptKey and note line', async () => {
+  it('creates a receipt tx without storing the image', async () => {
     vi.mocked(parseReceipt).mockResolvedValue({
       isReceipt: true,
       total: 85000,
@@ -332,7 +328,6 @@ describe('handleZaloUpdate', () => {
     );
 
     expect(downloadImage).toHaveBeenCalledWith('https://img.zalo.me/r.jpg');
-    expect(putReceipt).toHaveBeenCalledWith(USER, JPEG, 'image/jpeg');
     expect(parseReceipt).toHaveBeenCalledWith(
       JPEG,
       'image/jpeg',
@@ -346,17 +341,11 @@ describe('handleZaloUpdate', () => {
       note: 'Phở bò, trà đá ×2',
       date: '2026-11-01',
     };
-    expect(createTransaction).toHaveBeenCalledWith(
-      USER,
-      input,
-      'zalo',
-      'receipts/user-1/r.jpg',
-    );
-    expect(deleteReceipt).not.toHaveBeenCalled();
+    expect(createTransaction).toHaveBeenCalledWith(USER, input, 'zalo');
     expect(sent()).toEqual([
       [
         'C',
-        confirmReply(view(input, 'receipts/user-1/r.jpg'), TODAY, {
+        confirmReply(view(input), TODAY, {
           note: 'Phở bò, trà đá ×2',
         }),
       ],
@@ -390,11 +379,10 @@ describe('handleZaloUpdate', () => {
         date: TODAY,
       },
       'zalo',
-      'receipts/user-1/r.jpg',
     );
   });
 
-  it('deletes the stored image when the photo is not a receipt', async () => {
+  it('replies noTotal when the photo is not a receipt', async () => {
     vi.mocked(parseReceipt).mockResolvedValueOnce({
       isReceipt: false,
       total: null,
@@ -420,8 +408,6 @@ describe('handleZaloUpdate', () => {
       );
     }
 
-    expect(deleteReceipt).toHaveBeenCalledTimes(3);
-    expect(deleteReceipt).toHaveBeenCalledWith('receipts/user-1/r.jpg');
     expect(createTransaction).not.toHaveBeenCalled();
     expect(sent()).toEqual([
       ['C', REPLY.noTotal],
@@ -430,7 +416,7 @@ describe('handleZaloUpdate', () => {
     ]);
   });
 
-  it('skips Claude and drops the image when the user has no categories', async () => {
+  it('skips Claude when the user has no categories', async () => {
     vi.mocked(listCategories).mockResolvedValue([]);
 
     await handleZaloUpdate(
@@ -439,7 +425,6 @@ describe('handleZaloUpdate', () => {
     );
 
     expect(parseReceipt).not.toHaveBeenCalled();
-    expect(deleteReceipt).toHaveBeenCalledWith('receipts/user-1/r.jpg');
     expect(sent()).toEqual([['C', REPLY.noTotal]]);
   });
 
@@ -467,17 +452,11 @@ describe('handleZaloUpdate', () => {
       note: 'n'.repeat(200),
       date: TODAY,
     };
-    expect(createTransaction).toHaveBeenCalledWith(
-      USER,
-      input,
-      'zalo',
-      'receipts/user-1/r.jpg',
-    );
-    expect(deleteReceipt).not.toHaveBeenCalled();
+    expect(createTransaction).toHaveBeenCalledWith(USER, input, 'zalo');
     expect(sent()).toEqual([
       [
         'C',
-        confirmReply(view(input, 'receipts/user-1/r.jpg'), TODAY, {
+        confirmReply(view(input), TODAY, {
           note: 'n'.repeat(200),
         }),
       ],
@@ -510,7 +489,7 @@ describe('handleZaloUpdate', () => {
     );
   });
 
-  it('refuses images too large for Claude before storing them', async () => {
+  it('refuses images too large for Claude', async () => {
     vi.mocked(downloadImage).mockResolvedValue({
       ok: true,
       bytes: Buffer.alloc(5 * 1024 * 1024 + 1),
@@ -522,12 +501,11 @@ describe('handleZaloUpdate', () => {
       NOW,
     );
 
-    expect(putReceipt).not.toHaveBeenCalled();
     expect(parseReceipt).not.toHaveBeenCalled();
     expect(sent()).toEqual([['C', REPLY.imageError]]);
   });
 
-  it('keeps the stored image when saving the receipt tx fails', async () => {
+  it('replies the generic error when saving the receipt tx fails', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(parseReceipt).mockResolvedValue({
       isReceipt: true,
@@ -547,7 +525,6 @@ describe('handleZaloUpdate', () => {
     );
 
     expect(createTransaction).toHaveBeenCalled();
-    expect(deleteReceipt).not.toHaveBeenCalled();
     expect(sent()).toEqual([['C', REPLY.error]]);
     errorSpy.mockRestore();
   });
@@ -560,7 +537,6 @@ describe('handleZaloUpdate', () => {
       NOW,
     );
 
-    expect(putReceipt).not.toHaveBeenCalled();
     expect(sent()).toEqual([['C', REPLY.imageError]]);
   });
 
@@ -595,7 +571,7 @@ describe('handleZaloUpdate', () => {
     errorSpy.mockRestore();
   });
 
-  it('removes the stored image when saving the receipt tx throws', async () => {
+  it('replies the generic error when receipt parsing throws', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(parseReceipt).mockRejectedValue(new Error('api down'));
 
@@ -604,7 +580,6 @@ describe('handleZaloUpdate', () => {
       NOW,
     );
 
-    expect(deleteReceipt).toHaveBeenCalledWith('receipts/user-1/r.jpg');
     expect(sent()).toEqual([['C', REPLY.error]]);
     errorSpy.mockRestore();
   });

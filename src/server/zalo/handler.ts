@@ -11,11 +11,7 @@ import {
   resolveCategorySlug,
 } from '@/server/services/categories';
 import { quickParseToInput } from '@/server/services/quick-entry';
-import {
-  MAX_CLAUDE_IMAGE_BYTES,
-  deleteReceipt,
-  putReceipt,
-} from '@/server/services/receipts';
+import { MAX_CLAUDE_IMAGE_BYTES } from '@/server/services/receipts';
 import {
   createTransaction,
   undoLatestZaloTransaction,
@@ -154,22 +150,10 @@ async function handleImage(
     return REPLY.imageError;
   }
 
-  const key = await putReceipt(userId, image.bytes, image.mediaType);
-  let input: TxInput | null;
-  try {
-    input = await readReceipt(userId, image, today);
-  } catch (error) {
-    await deleteReceipt(key);
-    throw error;
-  }
-  if (!input) {
-    await deleteReceipt(key);
-    return REPLY.noTotal;
-  }
+  const input = await readReceipt(userId, image, today);
+  if (!input) return REPLY.noTotal;
 
-  // Outside the delete-on-error guard: createTransaction may fail after the
-  // row (which references the key) is committed.
-  const tx = await createTransaction(userId, input, 'zalo', key);
+  const tx = await createTransaction(userId, input, 'zalo');
   return confirmReply(tx, today, { note: input.note });
 }
 
