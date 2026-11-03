@@ -33,6 +33,24 @@
     "settings": "Settings",
     "addTransaction": "Add transaction"
   },
+  "categories": {
+    "title": "Add category",
+    "rootTag": "Top-level",
+    "childPlaceholder": "Subcategory of {parent}",
+    "rootPlaceholder": "New category name",
+    "add": "Add",
+    "added": "Category added",
+    "deleted": "Category deleted",
+    "parentLabel": "Parent category",
+    "nameLabel": "Category name",
+    "expense": "Expense",
+    "income": "Income",
+    "subcategories": "Subcategories",
+    "removeTitle": "Delete {name}?",
+    "removeBody": "{count} transactions will move to {parent}.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
   "tx": {
     "addTitle": "Add transaction",
     "editTitle": "Edit transaction",

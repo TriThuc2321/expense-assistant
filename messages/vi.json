@@ -33,6 +33,24 @@
     "settings": "Cài đặt",
     "addTransaction": "Thêm giao dịch"
   },
+  "categories": {
+    "title": "Thêm danh mục",
+    "rootTag": "Danh mục gốc",
+    "childPlaceholder": "Mục con của {parent}",
+    "rootPlaceholder": "Tên danh mục mới",
+    "add": "Thêm",
+    "added": "Đã thêm danh mục",
+    "deleted": "Đã xóa danh mục",
+    "parentLabel": "Danh mục cha",
+    "nameLabel": "Tên danh mục",
+    "expense": "Chi",
+    "income": "Thu",
+    "subcategories": "Danh mục con",
+    "removeTitle": "Xóa {name}?",
+    "removeBody": "{count} giao dịch sẽ được chuyển sang {parent}.",
+    "cancel": "Hủy",
+    "confirm": "Xóa"
+  },
   "tx": {
     "addTitle": "Thêm giao dịch",
     "editTitle": "Sửa giao dịch",
