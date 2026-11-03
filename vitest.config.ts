@@ -21,6 +21,16 @@ export default defineConfig({
           exclude: ['src/**/*.db.test.ts'],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'db',
+          environment: 'node',
+          include: ['src/**/*.db.test.ts'],
+          globalSetup: ['./src/test/db-global-setup.ts'],
+          fileParallelism: false,
+        },
+      },
     ],
   },
 });
