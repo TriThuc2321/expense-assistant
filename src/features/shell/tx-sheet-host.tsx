@@ -104,23 +104,27 @@ export function TxSheetHost() {
     }
     if (tx === null) return;
     let cancelled = false;
-    void getTxAction({ id: tx }).then((res) => {
-      if (cancelled) return;
-      if (!res.ok) {
-        onLoadError(res.error);
-        return;
-      }
-      const v = res.data;
-      form.reset({
-        type: v.type,
-        amount: v.amount,
-        categoryId: v.category.id,
-        store: v.store,
-        note: v.note,
-        date: v.date,
+    getTxAction({ id: tx })
+      .then((res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          onLoadError(res.error === 'invalid_input' ? 'not_found' : res.error);
+          return;
+        }
+        const v = res.data;
+        form.reset({
+          type: v.type,
+          amount: v.amount,
+          categoryId: v.category.id,
+          store: v.store,
+          note: v.note,
+          date: v.date,
+        });
+        setLoadedId(tx);
+      })
+      .catch(() => {
+        if (!cancelled) onLoadError('unknown');
       });
-      setLoadedId(tx);
-    });
     return () => {
       cancelled = true;
     };
@@ -137,9 +141,11 @@ export function TxSheetHost() {
       return;
     }
     submitting.current = true;
-    void submit(e).finally(() => {
-      submitting.current = false;
-    });
+    submit(e)
+      .catch(() => showError('unknown'))
+      .finally(() => {
+        submitting.current = false;
+      });
   };
 
   const save = async (values: TxInput) => {
@@ -157,8 +163,12 @@ export function TxSheetHost() {
     toast.show({
       title: t('tx.added'),
       onUndo: async () => {
-        const undo = await deleteTxAction({ id });
-        if (!undo.ok) showError(undo.error);
+        try {
+          const undo = await deleteTxAction({ id });
+          if (!undo.ok) showError(undo.error);
+        } catch {
+          showError('unknown');
+        }
       },
     });
   };
@@ -166,16 +176,27 @@ export function TxSheetHost() {
   const onDelete = async () => {
     if (!editId) return;
     setDeleting(true);
-    const res = await deleteTxAction({ id: editId });
-    setDeleting(false);
+    let res;
+    try {
+      res = await deleteTxAction({ id: editId });
+    } catch {
+      showError('unknown');
+      return;
+    } finally {
+      setDeleting(false);
+    }
     if (!res.ok) return showError(res.error);
     const id = editId;
     close();
     toast.show({
       title: t('tx.deleted'),
       onUndo: async () => {
-        const undo = await restoreTxAction({ id });
-        if (!undo.ok) showError(undo.error);
+        try {
+          const undo = await restoreTxAction({ id });
+          if (!undo.ok) showError(undo.error);
+        } catch {
+          showError('unknown');
+        }
       },
     });
   };
