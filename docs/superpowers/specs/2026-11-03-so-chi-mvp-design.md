@@ -173,6 +173,8 @@ Bám handoff README (màu, font, spacing, radius, motion, copy). Những điểm
 
 ## 8. Zalo bot
 
+**Một bot cố định**: app chỉ dùng một bot, xác định bằng `ZALO_BOT_TOKEN`; tên hiển thị của bot là hằng số trong code (dùng để bỏ phần @tag).
+
 **Đã biết về Zalo Bot Platform** (từ chủ dự án): bot vào được group; chỉ gọi webhook khi bot được tag; tin có ảnh kèm link ảnh; mỗi tin là độc lập, bot không đọc được tin trước. Hình dạng payload, header secret và API gửi tin phải kiểm tra lại với docs Zalo Bot khi lập plan Phase 3.
 
 **Luồng `POST /api/zalo/webhook`**:
@@ -191,7 +193,7 @@ Bám handoff README (màu, font, spacing, radius, motion, copy). Những điểm
 | chữ                                             |              | `parseQuick`; `null` → hướng dẫn cú pháp; `confidence: low` → `ai.parseText`; tạo giao dịch                                      |
 | ảnh                                             |              | tải ảnh (≤10MB) → R2 → `ai.parseReceipt` → `isReceipt && total` thì tạo giao dịch                                                |
 
-5. Trả lời xác nhận: `✓ {Gốc} › {Con} · −45.000 ₫ · Hôm nay` + `Gõ /undo để hủy`. Ảnh: thêm dòng note tóm tắt món.
+5. Mọi tin trả lời gửi với `parse_mode: 'html'` (chỉ dùng các thẻ Zalo hỗ trợ: `b`, `i`, `u`, `s`, `p`, `ul/ol/li`…); nội dung của người dùng (ghi chú, cửa hàng, tên danh mục) luôn được escape HTML. Trả lời xác nhận: `✓ {Gốc} › {Con} · −45.000 ₫ · Hôm nay` + `Gõ /undo để hủy`. Ảnh: thêm dòng note tóm tắt món.
 
 **Tin trả lời lỗi** (luôn tiếng Việt):
 
