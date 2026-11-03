@@ -4,19 +4,22 @@ import Link from 'next/link';
 
 import { LogoutButton } from '@/features/settings/logout-button';
 import { ThemeSwitchRow } from '@/features/settings/theme-switch-row';
+import { ZaloLinkCard } from '@/features/settings/zalo-link-card';
 import { UserAvatar } from '@/features/shell/user-avatar';
 import { requireSession } from '@/server/auth/session';
 import { listCategories } from '@/server/services/categories';
+import { getZaloLink } from '@/server/services/zalo-link';
 
 const cardClass =
   'bg-card border-subtle rounded-card overflow-hidden border shadow-sm';
 
 export default async function SettingsPage() {
   const { user } = await requireSession();
-  const [t, tNav, roots] = await Promise.all([
+  const [t, tNav, roots, zaloLink] = await Promise.all([
     getTranslations('settings'),
     getTranslations('nav'),
     listCategories(user.id),
+    getZaloLink(user.id),
   ]);
 
   return (
@@ -48,6 +51,10 @@ export default async function SettingsPage() {
           <ChevronRight size={16} strokeWidth={1.75} className="text-subtle" />
         </Link>
       </div>
+
+      <ZaloLinkCard
+        link={zaloLink ? { displayName: zaloLink.displayName } : null}
+      />
 
       <div className={cardClass}>
         <ThemeSwitchRow />

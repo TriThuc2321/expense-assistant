@@ -83,6 +83,8 @@
     "zaloTitle": "Log expenses via Zalo",
     "zaloBody": "Link Zalo to log expenses by tagging the bot with text or a receipt photo.",
     "zaloLink": "Link Zalo",
+    "zaloLinkedTitle": "Zalo linked",
+    "zaloLinkedBody": "Tag @{bot} in a group or message it: “ăn phở 45k”, or send a receipt photo.",
     "recent": "Recent",
     "seeAll": "See all",
     "recentEmpty": "No transactions yet"
@@ -110,7 +112,19 @@
   "settings": {
     "logout": "Sign out",
     "darkMode": "Dark mode",
-    "account": "{email} · Google"
+    "account": "{email} · Google",
+    "zalo": {
+      "title": "Zalo link",
+      "body": "Tag the bot in a Zalo group or message it to log expenses by text or receipt photo.",
+      "create": "Create link code",
+      "hint": "Message the bot privately: {command}",
+      "expiresIn": "Expires in {time}",
+      "expired": "Code expired",
+      "newCode": "New code",
+      "linkedAs": "Linked as {name}",
+      "unlink": "Unlink",
+      "unlinked": "Zalo unlinked"
+    }
   },
   "errors": {
     "not_found": "Not found",

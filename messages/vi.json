@@ -83,6 +83,8 @@
     "zaloTitle": "Ghi chi tiêu qua Zalo",
     "zaloBody": "Liên kết Zalo để tag bot ghi chi tiêu bằng chữ hoặc ảnh hóa đơn.",
     "zaloLink": "Liên kết Zalo",
+    "zaloLinkedTitle": "Đã liên kết Zalo",
+    "zaloLinkedBody": "Tag @{bot} trong nhóm hoặc nhắn riêng: “ăn phở 45k”, hay gửi ảnh hóa đơn.",
     "recent": "Gần đây",
     "seeAll": "Xem tất cả",
     "recentEmpty": "Chưa có giao dịch nào"
@@ -110,7 +112,19 @@
   "settings": {
     "logout": "Đăng xuất",
     "darkMode": "Giao diện tối",
-    "account": "{email} · Google"
+    "account": "{email} · Google",
+    "zalo": {
+      "title": "Liên kết Zalo",
+      "body": "Tag bot trong nhóm Zalo hoặc nhắn riêng để ghi chi tiêu bằng chữ hoặc ảnh hóa đơn.",
+      "create": "Tạo mã liên kết",
+      "hint": "Nhắn riêng cho bot: {command}",
+      "expiresIn": "Hết hạn sau {time}",
+      "expired": "Mã đã hết hạn",
+      "newCode": "Tạo mã mới",
+      "linkedAs": "Đã liên kết với {name}",
+      "unlink": "Hủy liên kết",
+      "unlinked": "Đã hủy liên kết Zalo"
+    }
   },
   "errors": {
     "not_found": "Không tìm thấy dữ liệu",

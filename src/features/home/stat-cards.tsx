@@ -9,13 +9,18 @@ import { ZaloCard } from './zalo-card';
 
 type StatCardsProps = {
   today: string;
+  zaloLinked: boolean;
   summary: { spent: number; spentLastSameRange: number; income: number };
 };
 
 const CARD =
   'bg-card border-subtle rounded-card flex flex-col gap-1.5 border px-[18px] py-4 shadow-sm';
 
-export async function StatCards({ today, summary }: StatCardsProps) {
+export async function StatCards({
+  today,
+  summary,
+  zaloLinked,
+}: StatCardsProps) {
   const t = await getTranslations('home');
   const format = await getFormatter();
   const month = format.dateTime(new Date(`${today}T00:00:00+07:00`), {
@@ -76,7 +81,7 @@ export async function StatCards({ today, summary }: StatCardsProps) {
           })}
         </div>
       </div>
-      <ZaloCard />
+      <ZaloCard linked={zaloLinked} />
     </div>
   );
 }

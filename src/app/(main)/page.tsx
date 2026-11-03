@@ -12,6 +12,7 @@ import {
   monthSummary,
   recentTransactions,
 } from '@/server/services/transactions';
+import { getZaloLink } from '@/server/services/zalo-link';
 
 // Vietnamese names put the given name last ("Nguyễn Minh" → "Minh").
 function givenName(fullName: string): string {
@@ -22,11 +23,12 @@ function givenName(fullName: string): string {
 export default async function Home() {
   const { user } = await requireSession();
   const today = todayVn();
-  const [t, format, summary, recent] = await Promise.all([
+  const [t, format, summary, recent, zaloLink] = await Promise.all([
     getTranslations('home'),
     getFormatter(),
     monthSummary(user.id, today),
     recentTransactions(user.id, 6),
+    getZaloLink(user.id),
   ]);
 
   const dateOverline = format.dateTime(await getNow(), {
@@ -55,7 +57,11 @@ export default async function Home() {
         </div>
       </header>
       <QuickEntry />
-      <StatCards today={today} summary={summary} />
+      <StatCards
+        today={today}
+        summary={summary}
+        zaloLinked={zaloLink !== null}
+      />
       <RecentList txs={recent} today={today} />
     </div>
   );
