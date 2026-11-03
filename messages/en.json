@@ -43,5 +43,12 @@
   },
   "settings": {
     "logout": "Sign out"
+  },
+  "errors": {
+    "not_found": "Not found",
+    "invalid_category": "Invalid category",
+    "duplicate_name": "That name already exists",
+    "invalid_input": "Invalid input",
+    "unknown": "Something went wrong, please try again"
   }
 }

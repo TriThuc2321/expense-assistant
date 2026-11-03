@@ -43,5 +43,12 @@
   },
   "settings": {
     "logout": "Đăng xuất"
+  },
+  "errors": {
+    "not_found": "Không tìm thấy dữ liệu",
+    "invalid_category": "Danh mục không hợp lệ",
+    "duplicate_name": "Tên này đã có",
+    "invalid_input": "Dữ liệu chưa hợp lệ",
+    "unknown": "Có lỗi, thử lại sau nhé"
   }
 }
