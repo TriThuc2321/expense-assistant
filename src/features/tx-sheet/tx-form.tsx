@@ -173,7 +173,8 @@ export function TxForm({
         onChange={date.onChange}
       >
         <Label>{t('date')}</Label>
-        <Input />
+        {/* iOS WebKit gives date inputs an intrinsic width that overrides w-full and overflows the sheet. */}
+        <Input className="min-w-0 appearance-none [&::-webkit-date-and-time-value]:text-left" />
       </TextField>
     </div>
   );
