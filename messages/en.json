@@ -53,6 +53,8 @@
     "confirm": "Delete"
   },
   "tx": {
+    "receipt": "Receipt",
+    "viewReceipt": "View receipt",
     "addTitle": "Add transaction",
     "editTitle": "Edit transaction",
     "added": "Transaction added",

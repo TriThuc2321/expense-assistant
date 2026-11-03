@@ -66,7 +66,11 @@ export function TxSheetHost() {
 
   const [loadedId, setLoadedId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [receiptTxId, setReceiptTxId] = useState<string | null>(null);
   if (tx === null && loadedId !== null) setLoadedId(null);
+  if ((tx === null || tx === 'new') && receiptTxId !== null) {
+    setReceiptTxId(null);
+  }
   const submitting = useRef(false);
   const loading = tx !== null && tx !== 'new' && loadedId !== tx;
 
@@ -120,6 +124,7 @@ export function TxSheetHost() {
           note: v.note,
           date: v.date,
         });
+        setReceiptTxId(v.receiptKey ? v.id : null);
         setLoadedId(tx);
       })
       .catch(() => {
@@ -241,9 +246,29 @@ export function TxSheetHost() {
           <Spinner />
         </div>
       ) : (
-        <form id={FORM_ID} onSubmit={onSubmit}>
-          <TxForm control={form.control} categories={categories} />
-        </form>
+        <>
+          {receiptTxId ? (
+            <a
+              href={`/api/receipts/${receiptTxId}`}
+              target="_blank"
+              rel="noopener"
+              className="mb-4 inline-block"
+            >
+              {/* next/image would cache the short-lived signed redirect target */}
+              {/* oxlint-disable-next-line nextjs/no-img-element */}
+              <img
+                src={`/api/receipts/${receiptTxId}`}
+                alt={t('tx.viewReceipt')}
+                width={64}
+                height={64}
+                className="size-16 rounded-[12px] object-cover"
+              />
+            </a>
+          ) : null}
+          <form id={FORM_ID} onSubmit={onSubmit}>
+            <TxForm control={form.control} categories={categories} />
+          </form>
+        </>
       )}
     </ResponsiveSheet>
   );

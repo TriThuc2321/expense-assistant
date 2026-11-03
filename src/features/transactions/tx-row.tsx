@@ -1,7 +1,7 @@
 'use client';
 
-import { MessageCircle } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { MessageCircle, ReceiptText } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 import type { Locale } from '@/i18n';
 import type { TxView } from '@/server/services/transactions';
@@ -13,6 +13,7 @@ import { dateLabel } from '@/lib/format';
 
 export function TxRow({ tx, today }: { tx: TxView; today: string }) {
   const locale = useLocale() as Locale;
+  const t = useTranslations();
   const { openEdit } = useTxSheet();
   const { category } = tx;
   const path = category.parentName
@@ -37,6 +38,14 @@ export function TxRow({ tx, today }: { tx: TxView; today: string }) {
               size={12}
               strokeWidth={1.75}
               aria-label="Zalo"
+              className="shrink-0"
+            />
+          ) : null}
+          {tx.receiptKey ? (
+            <ReceiptText
+              size={12}
+              strokeWidth={1.75}
+              aria-label={t('tx.receipt')}
               className="shrink-0"
             />
           ) : null}

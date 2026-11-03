@@ -53,6 +53,8 @@
     "confirm": "Xóa"
   },
   "tx": {
+    "receipt": "Hóa đơn",
+    "viewReceipt": "Xem hóa đơn",
     "addTitle": "Thêm giao dịch",
     "editTitle": "Sửa giao dịch",
     "added": "Đã thêm giao dịch",
