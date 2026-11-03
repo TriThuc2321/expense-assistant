@@ -36,6 +36,7 @@ export default function SwitchLocale() {
       <Button
         variant="tertiary"
         isIconOnly
+        aria-label={t('switch')}
         isPending={isPending}
         className="rounded-full"
       >
@@ -47,7 +48,7 @@ export default function SwitchLocale() {
       </Button>
 
       <DropdownPopover placement="bottom right">
-        <DropdownMenu aria-label="Switch locale">
+        <DropdownMenu aria-label={t('switch')}>
           <DropdownItem
             id={LOCALE.VI}
             textValue={t('vi')}

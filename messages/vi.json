@@ -1,18 +1,21 @@
 {
   "locale": {
+    "switch": "Đổi ngôn ngữ",
     "en": "English",
     "vi": "Tiếng Việt"
   },
+  "theme": {
+    "toggle": "Đổi giao diện sáng/tối"
+  },
   "common": {
     "appName": "Sổ Chi",
+    "description": "Quản lý chi tiêu cá nhân",
     "close": "Đóng",
     "undo": "Hoàn tác",
-    "welcome": "Chào mừng trở lại",
     "cancel": "Hủy"
   },
   "auth": {
     "login": "Đăng nhập",
-    "logout": "Đăng xuất",
     "overline": "Quản lý chi tiêu cá nhân và nhóm",
     "headline": "Biết tiền đi đâu, từng khoản một.",
     "subtitle": "Gõ “ăn phở 45k” là có giao dịch. Hỏi “tháng này tiêu bao nhiêu cho cà phê?” là có câu trả lời.",

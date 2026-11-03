@@ -1,18 +1,21 @@
 {
   "locale": {
+    "switch": "Change language",
     "en": "English",
     "vi": "Tiếng Việt"
   },
+  "theme": {
+    "toggle": "Toggle light/dark theme"
+  },
   "common": {
     "appName": "Sổ Chi",
+    "description": "Personal expense tracking",
     "close": "Close",
     "undo": "Undo",
-    "welcome": "Welcome back",
     "cancel": "Cancel"
   },
   "auth": {
-    "login": "Login",
-    "logout": "Logout",
+    "login": "Sign in",
     "overline": "Personal & group expense tracking",
     "headline": "Know where your money goes, one entry at a time.",
     "subtitle": "Type “ăn phở 45k” and it’s logged. Ask “how much did I spend on coffee this month?” and get an answer.",

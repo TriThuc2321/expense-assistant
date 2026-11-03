@@ -2,15 +2,18 @@
 
 import { Button } from '@heroui/react';
 import { Moon, Sun } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 
 export default function ThemeSwitch() {
+  const t = useTranslations('theme');
   const { setTheme, resolvedTheme } = useTheme();
 
   return (
     <Button
       variant="ghost"
       isIconOnly
+      aria-label={t('toggle')}
       className="rounded-full"
       onPress={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
     >

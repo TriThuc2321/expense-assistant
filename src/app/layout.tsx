@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
 
 import './globals.css';
@@ -41,18 +41,17 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
   );
 }
 
-export const metadata: Metadata = {
-  title: {
-    template: '%s | Sổ Chi',
-    default: 'Sổ Chi',
-  },
-  description: 'Sổ Chi',
-  openGraph: {
-    title: {
-      template: '%s | Sổ Chi',
-      default: 'Sổ Chi',
-    },
-    description: 'Sổ Chi',
-    images: ['/images/logo.png'],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('common');
+  const title = {
+    template: `%s | ${t('appName')}`,
+    default: t('appName'),
+  };
+  const description = t('description');
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: ['/images/logo.png'] },
+  };
+}

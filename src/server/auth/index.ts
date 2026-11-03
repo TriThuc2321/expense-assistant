@@ -31,6 +31,8 @@ function createAuth() {
         prompt: 'select_account',
       },
     },
+    // Cookie Max-Age isn't refreshed by RSC renders, so the lifetime must cover normal daily use.
+    session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
     onAPIError: { errorURL: '/login' },
     databaseHooks: createDatabaseHooks({
       allowed: ALLOWED_EMAILS,

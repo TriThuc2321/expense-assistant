@@ -10,8 +10,9 @@ import { NOT_INVITED } from '@/server/auth/hooks';
 import { getAllowedSession } from '@/server/auth/session';
 
 export default async function Page({ searchParams }: PageProps<'/login'>) {
-  const [t, { error }, session] = await Promise.all([
+  const [t, tCommon, { error }, session] = await Promise.all([
     getTranslations('auth'),
+    getTranslations('common'),
     searchParams,
     getAllowedSession(),
   ]);
@@ -28,7 +29,7 @@ export default async function Page({ searchParams }: PageProps<'/login'>) {
     <div className="flex flex-col gap-7">
       <div className="flex items-center gap-2.5">
         <LogoTile size={40} />
-        <span className="type-h3 text-strong">Sổ Chi</span>
+        <span className="type-h3 text-strong">{tCommon('appName')}</span>
       </div>
 
       <div className="flex flex-col gap-2.5">
