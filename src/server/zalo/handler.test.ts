@@ -16,7 +16,7 @@ import {
   undoLatestZaloTransaction,
 } from '@/server/services/transactions';
 import {
-  findUserIdByZaloId,
+  findAllowedUserIdByZaloId,
   redeemLinkCode,
 } from '@/server/services/zalo-link';
 
@@ -31,7 +31,7 @@ vi.mock('./client', () => ({ sendMessage: vi.fn() }));
 vi.mock('./download', () => ({ downloadImage: vi.fn() }));
 vi.mock('@/server/services/zalo-link', () => ({
   redeemLinkCode: vi.fn(),
-  findUserIdByZaloId: vi.fn(),
+  findAllowedUserIdByZaloId: vi.fn(),
 }));
 vi.mock('@/server/services/transactions', () => ({
   createTransaction: vi.fn(),
@@ -47,6 +47,7 @@ vi.mock('@/server/services/categories', () => ({
 vi.mock('@/server/services/receipts', () => ({
   putReceipt: vi.fn(),
   deleteReceipt: vi.fn(),
+  MAX_CLAUDE_IMAGE_BYTES: 5 * 1024 * 1024,
 }));
 vi.mock('@/server/ai/parse-text', () => ({ parseText: vi.fn() }));
 vi.mock('@/server/ai/parse-receipt', () => ({ parseReceipt: vi.fn() }));
@@ -108,7 +109,7 @@ function sent(): [string, string][] {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.mocked(findUserIdByZaloId).mockResolvedValue(USER);
+  vi.mocked(findAllowedUserIdByZaloId).mockResolvedValue(USER);
   vi.mocked(quickParseToInput).mockImplementation(async (_userId, p) => ({
     type: p.type,
     amount: p.amount,
@@ -165,11 +166,21 @@ describe('handleZaloUpdate', () => {
   });
 
   it('asks unlinked users to link first', async () => {
-    vi.mocked(findUserIdByZaloId).mockResolvedValue(null);
+    vi.mocked(findAllowedUserIdByZaloId).mockResolvedValue(null);
 
     await handleZaloUpdate(update({ fromId: 'stranger' }), NOW);
 
-    expect(findUserIdByZaloId).toHaveBeenCalledWith('stranger');
+    expect(findAllowedUserIdByZaloId).toHaveBeenCalledWith('stranger');
+    expect(createTransaction).not.toHaveBeenCalled();
+    expect(sent()).toEqual([['C', REPLY.notLinked]]);
+  });
+
+  it('treats a linked user removed from the allowlist as not linked', async () => {
+    vi.mocked(findAllowedUserIdByZaloId).mockResolvedValue(null);
+
+    await handleZaloUpdate(update({ text: 'ăn phở 45k' }), NOW);
+
+    expect(findAllowedUserIdByZaloId).toHaveBeenCalledWith('F');
     expect(createTransaction).not.toHaveBeenCalled();
     expect(sent()).toEqual([['C', REPLY.notLinked]]);
   });
@@ -394,7 +405,7 @@ describe('handleZaloUpdate', () => {
     });
     vi.mocked(parseReceipt).mockResolvedValueOnce({
       isReceipt: true,
-      total: 12.5,
+      total: 0.4,
       store: null,
       date: TODAY,
       categoryId: 'cat-food',
@@ -430,6 +441,115 @@ describe('handleZaloUpdate', () => {
     expect(parseReceipt).not.toHaveBeenCalled();
     expect(deleteReceipt).toHaveBeenCalledWith('receipts/user-1/r.jpg');
     expect(sent()).toEqual([['C', REPLY.noTotal]]);
+  });
+
+  it('cuts long Claude store/note to 200 chars and rounds the total', async () => {
+    const longNote = 'n'.repeat(300);
+    vi.mocked(parseReceipt).mockResolvedValue({
+      isReceipt: true,
+      total: 45000.4,
+      store: `  ${'s'.repeat(250)}  `,
+      date: TODAY,
+      categoryId: 'cat-food',
+      note: longNote,
+    });
+
+    await handleZaloUpdate(
+      update({ event: 'image', text: null, photoUrl: 'https://x/r.jpg' }),
+      NOW,
+    );
+
+    const input: TxInput = {
+      type: 'out',
+      amount: 45000,
+      categoryId: 'cat-food',
+      store: 's'.repeat(200),
+      note: 'n'.repeat(200),
+      date: TODAY,
+    };
+    expect(createTransaction).toHaveBeenCalledWith(
+      USER,
+      input,
+      'zalo',
+      'receipts/user-1/r.jpg',
+    );
+    expect(deleteReceipt).not.toHaveBeenCalled();
+    expect(sent()).toEqual([
+      [
+        'C',
+        confirmReply(view(input, 'receipts/user-1/r.jpg'), TODAY, {
+          note: 'n'.repeat(200),
+        }),
+      ],
+    ]);
+  });
+
+  it('cuts long Claude store/note in the low-confidence text merge', async () => {
+    vi.mocked(parseText).mockResolvedValue({
+      type: 'out',
+      amount: 120000,
+      categoryId: 'cat-food',
+      store: '   ',
+      note: 'x'.repeat(300),
+      date: TODAY,
+    });
+
+    await handleZaloUpdate(update({ text: 'món lạ 120k' }), NOW);
+
+    expect(createTransaction).toHaveBeenCalledWith(
+      USER,
+      {
+        type: 'out',
+        amount: 120000,
+        categoryId: 'cat-food',
+        store: null,
+        note: 'x'.repeat(200),
+        date: TODAY,
+      },
+      'zalo',
+    );
+  });
+
+  it('refuses images too large for Claude before storing them', async () => {
+    vi.mocked(downloadImage).mockResolvedValue({
+      ok: true,
+      bytes: Buffer.alloc(5 * 1024 * 1024 + 1),
+      mediaType: 'image/jpeg',
+    });
+
+    await handleZaloUpdate(
+      update({ event: 'image', text: null, photoUrl: 'https://x/r.jpg' }),
+      NOW,
+    );
+
+    expect(putReceipt).not.toHaveBeenCalled();
+    expect(parseReceipt).not.toHaveBeenCalled();
+    expect(sent()).toEqual([['C', REPLY.imageError]]);
+  });
+
+  it('keeps the stored image when saving the receipt tx fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(parseReceipt).mockResolvedValue({
+      isReceipt: true,
+      total: 85000,
+      store: null,
+      date: TODAY,
+      categoryId: 'cat-food',
+      note: null,
+    });
+    vi.mocked(createTransaction).mockRejectedValue(
+      new Error('read-back failed'),
+    );
+
+    await handleZaloUpdate(
+      update({ event: 'image', text: null, photoUrl: 'https://x/r.jpg' }),
+      NOW,
+    );
+
+    expect(createTransaction).toHaveBeenCalled();
+    expect(deleteReceipt).not.toHaveBeenCalled();
+    expect(sent()).toEqual([['C', REPLY.error]]);
+    errorSpy.mockRestore();
   });
 
   it('replies imageError when download fails', async () => {
@@ -502,7 +622,7 @@ describe('handleZaloUpdate', () => {
   it('ignores stickers silently', async () => {
     await handleZaloUpdate(update({ event: 'other', text: null }), NOW);
 
-    expect(findUserIdByZaloId).not.toHaveBeenCalled();
+    expect(findAllowedUserIdByZaloId).not.toHaveBeenCalled();
     expect(sendMessage).not.toHaveBeenCalled();
   });
 });

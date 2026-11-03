@@ -16,6 +16,8 @@ export type ReceiptMediaType =
   | 'image/webp';
 
 export const MAX_ZALO_IMAGE_BYTES = 10 * 1024 * 1024;
+// Anthropic rejects image blocks over 5 MB.
+export const MAX_CLAUDE_IMAGE_BYTES = 5 * 1024 * 1024;
 
 const EXTENSIONS: Record<ReceiptMediaType, string> = {
   'image/jpeg': 'jpg',

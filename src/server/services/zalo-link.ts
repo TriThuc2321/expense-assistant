@@ -1,6 +1,8 @@
 import { and, eq, isNull, lt, or } from 'drizzle-orm';
 import { randomInt } from 'node:crypto';
 
+import { env } from '@/configs/env';
+import { isEmailAllowed } from '@/server/auth/allowlist';
 import { getDb } from '@/server/db';
 import {
   user,
@@ -111,6 +113,18 @@ export async function findUserIdByZaloId(
     .from(zaloLinks)
     .where(eq(zaloLinks.zaloUserId, zaloUserId));
   return row?.userId ?? null;
+}
+
+export async function findAllowedUserIdByZaloId(
+  zaloUserId: string,
+): Promise<string | null> {
+  const [row] = await getDb()
+    .select({ userId: zaloLinks.userId, email: user.email })
+    .from(zaloLinks)
+    .innerJoin(user, eq(user.id, zaloLinks.userId))
+    .where(eq(zaloLinks.zaloUserId, zaloUserId));
+  if (!row || !isEmailAllowed(row.email, env().ALLOWED_EMAILS)) return null;
+  return row.userId;
 }
 
 export async function markUpdateSeen(updateId: string): Promise<boolean> {

@@ -54,7 +54,7 @@ export function parseZaloUpdate(body: unknown): ZaloUpdate | null {
     chatId: message.chat.id,
     chatType: message.chat.chat_type,
     fromId: message.from.id,
-    fromName: message.from.display_name ?? '',
+    fromName: message.from.display_name?.trim() || message.from.id,
     event,
     text: (event === 'image' ? message.caption : message.text) ?? null,
     photoUrl: message.photo_url ?? null,

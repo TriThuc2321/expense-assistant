@@ -7,6 +7,7 @@ import { createTestUser, resetDb } from '@/server/db/test-utils';
 
 import {
   createLinkCode,
+  findAllowedUserIdByZaloId,
   findUserIdByZaloId,
   getZaloLink,
   markUpdateSeen,
@@ -85,6 +86,19 @@ describe('links', () => {
     await unlinkZalo(u.id);
     expect(await getZaloLink(u.id)).toBeNull();
     expect(await findUserIdByZaloId('Z1')).toBeNull();
+  });
+});
+
+describe('findAllowedUserIdByZaloId', () => {
+  it('returns the linked user only while their email is allowed', async () => {
+    const allowed = await createTestUser({ email: 'test@example.com' });
+    const removed = await createTestUser({ email: 'gone@example.com' });
+    await redeem((await createLinkCode(allowed.id, NOW)).code, 'Z1');
+    await redeem((await createLinkCode(removed.id, NOW)).code, 'Z2');
+
+    expect(await findAllowedUserIdByZaloId('Z1')).toBe(allowed.id);
+    expect(await findAllowedUserIdByZaloId('Z2')).toBeNull();
+    expect(await findAllowedUserIdByZaloId('Z3')).toBeNull();
   });
 });
 

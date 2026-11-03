@@ -119,7 +119,7 @@
       "title": "Zalo link",
       "body": "Tag the bot in a Zalo group or message it to log expenses by text or receipt photo.",
       "create": "Create link code",
-      "hint": "Message the bot privately: {command}",
+      "hint": "Message the bot privately: <cmd>{command}</cmd>",
       "expiresIn": "Expires in {time}",
       "expired": "Code expired",
       "newCode": "New code",

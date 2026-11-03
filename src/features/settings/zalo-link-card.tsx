@@ -13,8 +13,6 @@ import { useToast } from '@/components/ui/toast';
 import { createLinkCodeAction, unlinkZaloAction } from './actions';
 import { formatCountdown } from './countdown';
 
-const HINT_SLOT = '\u0000';
-
 type IssuedCode = { code: string; expiresAt: number };
 
 export function ZaloLinkCard({
@@ -43,10 +41,6 @@ export function ZaloLinkCard({
       clearInterval(poll);
     };
   }, [active, router]);
-
-  const [hintBefore, hintAfter] = t('settings.zalo.hint', {
-    command: HINT_SLOT,
-  }).split(HINT_SLOT);
 
   const run = async <T,>(
     action: () => Promise<ActionResult<T>>,
@@ -77,7 +71,6 @@ export function ZaloLinkCard({
     run(unlinkZaloAction, () => {
       setIssued(null);
       toast.show({ title: t('settings.zalo.unlinked') });
-      router.refresh();
     });
 
   return (
@@ -117,9 +110,10 @@ export function ZaloLinkCard({
                 {issued.code}
               </div>
               <p className="type-caption text-muted">
-                {hintBefore}
-                <span className="font-mono">/link {issued.code}</span>
-                {hintAfter}
+                {t.rich('settings.zalo.hint', {
+                  command: `/link ${issued.code}`,
+                  cmd: (chunks) => <span className="font-mono">{chunks}</span>,
+                })}
               </p>
               <p className="type-caption text-subtle" aria-live="off">
                 {t('settings.zalo.expiresIn', {

@@ -66,6 +66,17 @@ describe('parseZaloUpdate', () => {
     });
   });
 
+  it('falls back to the Zalo user id when the display name is missing or blank', () => {
+    const { message } = CAPTURE.result;
+    const anonymous = { ...message.from, display_name: undefined };
+    for (const from of [anonymous, { ...message.from, display_name: '  ' }]) {
+      expect(
+        parseZaloUpdate({ ...CAPTURE.result, message: { ...message, from } })
+          ?.fromName,
+      ).toBe('146155d51d9aa4c4dddd');
+    }
+  });
+
   it('marks other events and drops bot senders and malformed bodies', () => {
     const { message } = CAPTURE.result;
     expect(

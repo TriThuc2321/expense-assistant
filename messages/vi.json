@@ -119,7 +119,7 @@
       "title": "Liên kết Zalo",
       "body": "Tag bot trong nhóm Zalo hoặc nhắn riêng để ghi chi tiêu bằng chữ hoặc ảnh hóa đơn.",
       "create": "Tạo mã liên kết",
-      "hint": "Nhắn riêng cho bot: {command}",
+      "hint": "Nhắn riêng cho bot: <cmd>{command}</cmd>",
       "expiresIn": "Hết hạn sau {time}",
       "expired": "Mã đã hết hạn",
       "newCode": "Tạo mã mới",

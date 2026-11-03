@@ -11,13 +11,17 @@ import {
   resolveCategorySlug,
 } from '@/server/services/categories';
 import { quickParseToInput } from '@/server/services/quick-entry';
-import { deleteReceipt, putReceipt } from '@/server/services/receipts';
+import {
+  MAX_CLAUDE_IMAGE_BYTES,
+  deleteReceipt,
+  putReceipt,
+} from '@/server/services/receipts';
 import {
   createTransaction,
   undoLatestZaloTransaction,
 } from '@/server/services/transactions';
 import {
-  findUserIdByZaloId,
+  findAllowedUserIdByZaloId,
   redeemLinkCode,
 } from '@/server/services/zalo-link';
 
@@ -56,7 +60,7 @@ async function route(update: ZaloUpdate, now: Date): Promise<string | null> {
     return linked ? linkedReply(linked.userName) : REPLY.invalidCode;
   }
 
-  const userId = await findUserIdByZaloId(update.fromId);
+  const userId = await findAllowedUserIdByZaloId(update.fromId);
   if (!userId) return REPLY.notLinked;
 
   const today = todayVn(now);
@@ -70,6 +74,14 @@ async function route(update: ZaloUpdate, now: Date): Promise<string | null> {
     case 'image':
       return handleImage(userId, intent.url, today);
   }
+}
+
+const MAX_TEXT = 200;
+
+// Claude's free text has no length limit; cut it so an over-long note can't
+// fail validation and drop an otherwise valid entry.
+function clip(text: string | null): string | null {
+  return text?.trim().slice(0, MAX_TEXT).trim() || null;
 }
 
 async function loadAiCategories(userId: string): Promise<AiCategory[]> {
@@ -117,8 +129,8 @@ async function refineWithClaude(
     ...input,
     type: ai.type,
     categoryId: ai.categoryId,
-    store: ai.store,
-    note: ai.note,
+    store: clip(ai.store),
+    note: clip(ai.note),
   });
   return refined.success ? refined.data : input;
 }
@@ -138,25 +150,34 @@ async function handleImage(
 ): Promise<string> {
   if (!isHttpsUrl(url)) return REPLY.imageError;
   const image = await downloadImage(url);
-  if (!image.ok) return REPLY.imageError;
+  if (!image.ok || image.bytes.length > MAX_CLAUDE_IMAGE_BYTES) {
+    return REPLY.imageError;
+  }
 
   const key = await putReceipt(userId, image.bytes, image.mediaType);
+  let input: TxInput | null;
   try {
-    const reply = await saveReceipt(userId, key, image, today);
-    if (!reply) await deleteReceipt(key);
-    return reply ?? REPLY.noTotal;
+    input = await readReceipt(userId, image, today);
   } catch (error) {
     await deleteReceipt(key);
     throw error;
   }
+  if (!input) {
+    await deleteReceipt(key);
+    return REPLY.noTotal;
+  }
+
+  // Outside the delete-on-error guard: createTransaction may fail after the
+  // row (which references the key) is committed.
+  const tx = await createTransaction(userId, input, 'zalo', key);
+  return confirmReply(tx, today, { note: input.note });
 }
 
-async function saveReceipt(
+async function readReceipt(
   userId: string,
-  key: string,
   image: Extract<Awaited<ReturnType<typeof downloadImage>>, { ok: true }>,
   today: string,
-): Promise<string | null> {
+): Promise<TxInput | null> {
   const categories = await loadAiCategories(userId);
   if (categories.length === 0) return null;
 
@@ -174,14 +195,11 @@ async function saveReceipt(
 
   const input = txInputSchema.safeParse({
     type: chosen?.type ?? 'out',
-    amount: receipt.total,
+    amount: Math.round(receipt.total),
     categoryId,
-    store: receipt.store,
-    note: receipt.note,
+    store: clip(receipt.store),
+    note: clip(receipt.note),
     date: receipt.date,
   });
-  if (!input.success) return null;
-
-  const tx = await createTransaction(userId, input.data, 'zalo', key);
-  return confirmReply(tx, today, { note: receipt.note });
+  return input.success ? input.data : null;
 }

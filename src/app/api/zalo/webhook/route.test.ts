@@ -68,10 +68,13 @@ describe('POST /api/zalo/webhook', () => {
   });
 
   it('answers 500 without scheduling work when dedupe fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(markUpdateSeen).mockRejectedValue(new Error('db down'));
     const res = await POST(req(BODY));
     expect(res.status).toBe(500);
     expect(after).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 
   it('schedules the handler in after() for a new update', async () => {
