@@ -46,7 +46,7 @@ pnpm tunnel
 
 ## Bot Zalo
 
-Biến môi trường (xem `.env.example`): `ZALO_BOT_TOKEN`, `ZALO_WEBHOOK_SECRET` (8-256 ký tự, Zalo gửi lại trong header `X-Bot-Api-Secret-Token`), `ANTHROPIC_API_KEY`, các biến `R2_*` và `CRON_SECRET` (tối thiểu 16 ký tự).
+Biến môi trường (xem `.env.example`): `ZALO_BOT_TOKEN`, `ZALO_WEBHOOK_SECRET` (8-256 ký tự, Zalo gửi lại trong header `X-Bot-Api-Secret-Token`), `OPENAI_API_KEY`, các biến `R2_*` và `CRON_SECRET` (tối thiểu 16 ký tự).
 
 Đăng ký webhook khi dev: chạy `pnpm tunnel` (cần `DEV_TUNNEL_HOST`, xem trên), rồi `pnpm zalo:webhook`. Lệnh này gọi `setWebhook` tới `https://<DEV_TUNNEL_HOST>/api/zalo/webhook`; có thể truyền URL gốc khác: `pnpm zalo:webhook https://example.com`.
 

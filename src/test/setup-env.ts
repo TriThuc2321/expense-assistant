@@ -6,7 +6,7 @@ const defaults: Record<string, string> = {
   ALLOWED_EMAILS: 'test@example.com',
   ZALO_BOT_TOKEN: 'test-zalo-bot-token',
   ZALO_WEBHOOK_SECRET: 'test-zalo-webhook-secret',
-  ANTHROPIC_API_KEY: 'test-anthropic-key',
+  OPENAI_API_KEY: 'test-openai-key',
   R2_ACCOUNT_ID: 'test-r2-account',
   R2_ACCESS_KEY_ID: 'test-r2-access-key',
   R2_SECRET_ACCESS_KEY: 'test-r2-secret',

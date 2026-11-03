@@ -1,4 +1,4 @@
-import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
+import { zodTextFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
 import type { ReceiptMediaType } from '@/server/services/receipts';
@@ -9,7 +9,7 @@ import {
   categoryLines,
   normalizeAiDate,
 } from './categories';
-import { getAnthropic } from './client';
+import { getOpenAI } from './client';
 import { AI_MODEL } from './config';
 
 const SYSTEM_PROMPT = `You extract one VND expense from a photo of a Vietnamese receipt.
@@ -43,27 +43,22 @@ export async function parseReceipt(
     note: z.string().nullable(),
   });
 
-  const message = await getAnthropic().beta.messages.parse({
+  const response = await getOpenAI().responses.parse({
     model: AI_MODEL,
-    max_tokens: 2048,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'low', format: betaZodOutputFormat(schema) },
-    system: SYSTEM_PROMPT,
-    messages: [
+    reasoning: { effort: 'low' },
+    text: { format: zodTextFormat(schema, 'receipt') },
+    instructions: SYSTEM_PROMPT,
+    input: [
       {
         role: 'user',
         content: [
           {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: mediaType,
-              data: image.toString('base64'),
-            },
+            type: 'input_image',
+            detail: 'auto',
+            image_url: `data:${mediaType};base64,${image.toString('base64')}`,
           },
           {
-            type: 'text',
+            type: 'input_text',
             text: `Today: ${ctx.today}\n\nCategories:\n${categoryLines(ctx.categories)}`,
           },
         ],
@@ -71,8 +66,9 @@ export async function parseReceipt(
     ],
   });
 
-  if (message.stop_reason === 'refusal' || !message.parsed_output) return null;
-  const out = message.parsed_output;
+  // Null on refusal or incomplete output as well as on a missing parse.
+  const out = response.output_parsed;
+  if (!out) return null;
 
   return {
     isReceipt: out.isReceipt,

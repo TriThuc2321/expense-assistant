@@ -1,4 +1,4 @@
-import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
+import { zodTextFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
 import type { TxType } from '@/lib/types';
@@ -9,7 +9,7 @@ import {
   categoryLines,
   normalizeAiDate,
 } from './categories';
-import { getAnthropic } from './client';
+import { getOpenAI } from './client';
 import { AI_MODEL } from './config';
 
 const SYSTEM_PROMPT = `You extract exactly one expense or income, in VND, from a Vietnamese chat message.
@@ -40,23 +40,17 @@ export async function parseText(
     date: z.string().nullable(),
   });
 
-  const message = await getAnthropic().beta.messages.parse({
+  const response = await getOpenAI().responses.parse({
     model: AI_MODEL,
-    max_tokens: 2048,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'low', format: betaZodOutputFormat(schema) },
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: `Today: ${ctx.today}\n\nCategories:\n${categoryLines(ctx.categories)}\n\nMessage:\n${text}`,
-      },
-    ],
+    reasoning: { effort: 'low' },
+    text: { format: zodTextFormat(schema, 'expense') },
+    instructions: SYSTEM_PROMPT,
+    input: `Today: ${ctx.today}\n\nCategories:\n${categoryLines(ctx.categories)}\n\nMessage:\n${text}`,
   });
 
-  if (message.stop_reason === 'refusal' || !message.parsed_output) return null;
-  const out = message.parsed_output;
+  // Null on refusal or incomplete output as well as on a missing parse.
+  const out = response.output_parsed;
+  if (!out) return null;
   const category = ctx.categories.find((c) => c.id === out.categoryId);
   if (!category) return null;
 

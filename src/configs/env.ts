@@ -20,7 +20,7 @@ const envSchema = z.object({
   // Zalo requires the webhook secret to be 8-256 chars.
   ZALO_WEBHOOK_SECRET: z.string().min(8).max(256),
 
-  ANTHROPIC_API_KEY: z.string().min(1),
+  OPENAI_API_KEY: z.string().min(1),
 
   R2_ACCOUNT_ID: z.string().min(1),
   R2_ACCESS_KEY_ID: z.string().min(1),

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const parse = vi.fn();
 vi.mock('./client', () => ({
-  getAnthropic: () => ({ beta: { messages: { parse } } }),
+  getOpenAI: () => ({ responses: { parse } }),
 }));
 
 import type { AiCategory } from './categories';
@@ -19,26 +19,25 @@ const ctx = { today: '2026-10-14', categories };
 beforeEach(() => parse.mockReset());
 
 describe('parseText', () => {
-  it('sends model, low effort, default fallbacks and the beta', async () => {
-    parse.mockResolvedValue({ stop_reason: 'end_turn', parsed_output: null });
+  it('sends model, low reasoning effort, a json schema format and instructions', async () => {
+    parse.mockResolvedValue({ output_parsed: null });
     await parseText('phở 45k', ctx);
     expect(parse).toHaveBeenCalledWith(
       expect.objectContaining({
-        model: 'claude-opus-5-5',
-        fallbacks: 'default',
-        betas: ['server-side-fallback-2026-07-01'],
-        output_config: expect.objectContaining({ effort: 'low' }),
+        model: 'gpt-5-mini',
+        reasoning: { effort: 'low' },
+        text: {
+          format: expect.objectContaining({ type: 'json_schema' }),
+        },
+        instructions: expect.any(String),
       }),
     );
-    const args = parse.mock.calls[0][0];
-    expect(args).not.toHaveProperty('thinking');
-    expect(args).not.toHaveProperty('temperature');
+    expect(parse.mock.calls[0][0]).not.toHaveProperty('temperature');
   });
 
   it('takes type from the chosen category', async () => {
     parse.mockResolvedValue({
-      stop_reason: 'end_turn',
-      parsed_output: {
+      output_parsed: {
         amount: 15000000,
         categoryId: 'salary',
         store: null,
@@ -56,25 +55,16 @@ describe('parseText', () => {
     });
   });
 
-  it('returns null on refusal and on missing parsed_output', async () => {
-    parse.mockResolvedValueOnce({
-      stop_reason: 'refusal',
-      parsed_output: null,
-    });
-    await expect(parseText('x', ctx)).resolves.toBeNull();
-    parse.mockResolvedValueOnce({
-      stop_reason: 'end_turn',
-      parsed_output: null,
-    });
+  it('returns null when there is no parsed output', async () => {
+    parse.mockResolvedValue({ output_parsed: null });
     await expect(parseText('x', ctx)).resolves.toBeNull();
   });
 });
 
 describe('parseReceipt', () => {
-  it('sends the image as base64 before the text', async () => {
+  it('sends the image as a data URL before the text', async () => {
     parse.mockResolvedValue({
-      stop_reason: 'end_turn',
-      parsed_output: {
+      output_parsed: {
         isReceipt: true,
         total: 90000,
         store: 'Phở 24',
@@ -93,20 +83,17 @@ describe('parseReceipt', () => {
       categoryId: 'pho',
       note: 'Phở bò',
     });
-    const content = parse.mock.calls[0][0].messages[0].content;
+    const content = parse.mock.calls[0][0].input[0].content;
     expect(content[0]).toEqual({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: 'image/png',
-        data: image.toString('base64'),
-      },
+      type: 'input_image',
+      detail: 'auto',
+      image_url: `data:image/png;base64,${image.toString('base64')}`,
     });
-    expect(content[1].type).toBe('text');
+    expect(content[1].type).toBe('input_text');
   });
 
-  it('returns null on refusal', async () => {
-    parse.mockResolvedValue({ stop_reason: 'refusal', parsed_output: null });
+  it('returns null when there is no parsed output', async () => {
+    parse.mockResolvedValue({ output_parsed: null });
     await expect(
       parseReceipt(Buffer.from('a'), 'image/png', ctx),
     ).resolves.toBeNull();
