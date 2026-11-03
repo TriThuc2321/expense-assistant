@@ -1,18 +1,8 @@
 'use client';
 
-import {
-  Button,
-  Dropdown,
-  Label,
-  cn,
-  DropdownPopover,
-  DropdownMenu,
-  DropdownItem,
-} from '@heroui/react';
+import { Button } from '@heroui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTransition } from 'react';
-
-import type { Locale } from '@/i18n';
 
 import { FlagUSIcon, FlagVNIcon } from '@/assets/icons';
 import { LOCALE } from '@/constants/locale';
@@ -26,57 +16,25 @@ export default function SwitchLocale() {
   const iconClasses =
     'text-xs size-5 text-default-500 pointer-events-none shrink-0';
 
-  const onSwitchLocale = (next: Locale) => {
-    if (next === locale) return;
+  const onToggle = () => {
+    const next = locale === LOCALE.VI ? LOCALE.EN : LOCALE.VI;
     startTransition(() => setUserLocale(next));
   };
 
   return (
-    <Dropdown>
-      <Button
-        variant="tertiary"
-        isIconOnly
-        aria-label={t('switch')}
-        isPending={isPending}
-        className="rounded-full"
-      >
-        {locale === LOCALE.VI ? (
-          <FlagVNIcon className={iconClasses} />
-        ) : (
-          <FlagUSIcon className={iconClasses} />
-        )}
-      </Button>
-
-      <DropdownPopover placement="bottom right">
-        <DropdownMenu aria-label={t('switch')}>
-          <DropdownItem
-            id={LOCALE.VI}
-            textValue={t('vi')}
-            className={cn({
-              'bg-secondary/25 font-bold': locale === LOCALE.VI,
-            })}
-            onPress={() => onSwitchLocale(LOCALE.VI)}
-          >
-            <Label className="flex items-center gap-2">
-              <FlagVNIcon className={iconClasses} />
-              {t('vi')}
-            </Label>
-          </DropdownItem>
-          <DropdownItem
-            id={LOCALE.EN}
-            textValue={t('en')}
-            className={cn({
-              'bg-secondary/25 font-bold': locale === LOCALE.EN,
-            })}
-            onPress={() => onSwitchLocale(LOCALE.EN)}
-          >
-            <Label className="flex items-center gap-2">
-              <FlagUSIcon className={iconClasses} />
-              {t('en')}
-            </Label>
-          </DropdownItem>
-        </DropdownMenu>
-      </DropdownPopover>
-    </Dropdown>
+    <Button
+      variant="tertiary"
+      isIconOnly
+      aria-label={t('switch')}
+      isPending={isPending}
+      className="rounded-full"
+      onPress={onToggle}
+    >
+      {locale === LOCALE.VI ? (
+        <FlagVNIcon className={iconClasses} />
+      ) : (
+        <FlagUSIcon className={iconClasses} />
+      )}
+    </Button>
   );
 }

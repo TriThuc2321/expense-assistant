@@ -8,7 +8,6 @@ import { usePathname } from 'next/navigation';
 
 import type { AppSession } from '@/server/auth/session';
 
-import { SwitchLocale, ThemeSwitch } from '@/components/layouts';
 import { useTxSheet } from '@/features/tx-sheet/tx-sheet-provider';
 
 import { LogoTile } from './logo-tile';
@@ -27,10 +26,6 @@ export function Sidebar({ user }: { user: AppSession['user'] }) {
         <span className="type-h4 text-strong flex-1">
           {t('common.appName')}
         </span>
-      </div>
-      <div className="flex items-center gap-1 px-1.5">
-        <SwitchLocale />
-        <ThemeSwitch />
       </div>
 
       <Button fullWidth onPress={() => openNew()}>

@@ -46,10 +46,10 @@ export default async function Home() {
             {t('greeting', { name: givenName(user.name) })}
           </h1>
         </div>
-        <div className="wide:hidden flex items-center gap-1">
+        <div className="flex items-center gap-1">
           <SwitchLocale />
           <ThemeSwitch />
-          <Link href="/settings" className="ml-1 flex">
+          <Link href="/settings" className="wide:hidden ml-1 flex">
             <UserAvatar user={user} size="md" />
           </Link>
         </div>
