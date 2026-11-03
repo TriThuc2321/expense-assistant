@@ -1,10 +1,15 @@
 import type { TxView } from '@/server/services/transactions';
 
+// Typed (NFD) and stored (NFC) Vietnamese must compare equal.
+function fold(s: string): string {
+  return s.normalize('NFC').toLowerCase();
+}
+
 export function matchesSearch(tx: TxView, q: string): boolean {
-  const needle = q.trim().toLowerCase();
+  const needle = fold(q.trim());
   if (!needle) return true;
   return [tx.note, tx.store, tx.category.name, tx.category.parentName].some(
-    (field) => field?.toLowerCase().includes(needle),
+    (field) => field && fold(field).includes(needle),
   );
 }
 

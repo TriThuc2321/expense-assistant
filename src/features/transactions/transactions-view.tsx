@@ -20,7 +20,7 @@ import type { TxView } from '@/server/services/transactions';
 
 import { Money } from '@/components/ui/money';
 import { useTxSheet } from '@/features/tx-sheet/tx-sheet-provider';
-import { dateLabel, formatVnd } from '@/lib/format';
+import { dateLabel } from '@/lib/format';
 
 import type { TxPageParams } from './search-params';
 
@@ -82,7 +82,10 @@ export function TransactionsView({
       <header className="flex items-end gap-3">
         <div className="min-w-0 flex-1">
           <div className="type-overline text-subtle">
-            {t('summary', { count: visible.length, sum: formatVnd(spent) })}
+            {t.rich('summary', {
+              count: visible.length,
+              sum: () => <Money amount={spent} />,
+            })}
           </div>
           <h1 className="type-h2 text-strong mt-1">{tNav('transactions')}</h1>
         </div>
@@ -164,7 +167,6 @@ export function TransactionsView({
 
       {filterOpen ? (
         <FilterPanel
-          key={`${params.min ?? ''}|${params.max ?? ''}|${params.store ?? ''}`}
           params={params}
           onCommit={update}
           onClear={() => {
@@ -215,6 +217,28 @@ export function TransactionsView({
   );
 }
 
+// Local text state resyncs from the URL only when the URL changed by something
+// other than this panel's own commit (clear, back/forward); remounting on every
+// commit would steal focus from the next field.
+function useCommittedField(urlValue: string) {
+  const [value, setValue] = useState(urlValue);
+  const [seen, setSeen] = useState(urlValue);
+  const [committed, setCommitted] = useState(urlValue);
+  if (urlValue !== seen) {
+    setSeen(urlValue);
+    if (urlValue !== committed) {
+      setCommitted(urlValue);
+      setValue(urlValue);
+    }
+  }
+  const commit = (next: string, apply: (v: string | undefined) => void) => {
+    if (next === committed) return;
+    setCommitted(next);
+    apply(next || undefined);
+  };
+  return { value, setValue, commit };
+}
+
 function FilterPanel({
   params,
   onCommit,
@@ -225,31 +249,35 @@ function FilterPanel({
   onClear: () => void;
 }) {
   const t = useTranslations('transactions');
-  const [min, setMin] = useState(params.min?.toString() ?? '');
-  const [max, setMax] = useState(params.max?.toString() ?? '');
-  const [store, setStore] = useState(params.store ?? '');
+  const min = useCommittedField(params.min?.toString() ?? '');
+  const max = useCommittedField(params.max?.toString() ?? '');
+  const store = useCommittedField(params.store ?? '');
 
   const digits = (v: string) => v.replace(/\D/g, '');
+  const commitMin = () => min.commit(min.value, (v) => onCommit({ min: v }));
+  const commitMax = () => max.commit(max.value, (v) => onCommit({ max: v }));
+  const commitStore = () =>
+    store.commit(store.value.trim(), (v) => onCommit({ store: v }));
 
   return (
     <div className="bg-card border-subtle rounded-card grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 border p-4">
       <TextField
-        value={min}
-        onChange={(v) => setMin(digits(v))}
-        onBlur={() => onCommit({ min: min || undefined })}
+        value={min.value}
+        onChange={(v) => min.setValue(digits(v))}
+        onBlur={commitMin}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') onCommit({ min: min || undefined });
+          if (e.key === 'Enter') commitMin();
         }}
       >
         <Label>{t('amountFrom')}</Label>
         <Input inputMode="numeric" placeholder="0" className="font-mono" />
       </TextField>
       <TextField
-        value={max}
-        onChange={(v) => setMax(digits(v))}
-        onBlur={() => onCommit({ max: max || undefined })}
+        value={max.value}
+        onChange={(v) => max.setValue(digits(v))}
+        onBlur={commitMax}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') onCommit({ max: max || undefined });
+          if (e.key === 'Enter') commitMax();
         }}
       >
         <Label>{t('amountTo')}</Label>
@@ -260,11 +288,11 @@ function FilterPanel({
         />
       </TextField>
       <TextField
-        value={store}
-        onChange={setStore}
-        onBlur={() => onCommit({ store: store.trim() || undefined })}
+        value={store.value}
+        onChange={store.setValue}
+        onBlur={commitStore}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') onCommit({ store: store.trim() || undefined });
+          if (e.key === 'Enter') commitStore();
         }}
       >
         <Label>{t('store')}</Label>

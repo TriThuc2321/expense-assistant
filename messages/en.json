@@ -69,7 +69,7 @@
     "recentEmpty": "No transactions yet"
   },
   "transactions": {
-    "summary": "{count} transactions · spent {sum}",
+    "summary": "{count} transactions · spent <sum></sum>",
     "add": "Add",
     "search": "Search",
     "searchPlaceholder": "Search by note, store, category",

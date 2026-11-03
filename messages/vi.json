@@ -69,7 +69,7 @@
     "recentEmpty": "Chưa có giao dịch nào"
   },
   "transactions": {
-    "summary": "{count} giao dịch · chi {sum}",
+    "summary": "{count} giao dịch · chi <sum></sum>",
     "add": "Thêm",
     "search": "Tìm kiếm",
     "searchPlaceholder": "Tìm theo ghi chú, cửa hàng, danh mục",

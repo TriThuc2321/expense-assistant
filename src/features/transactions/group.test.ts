@@ -51,6 +51,10 @@ describe('matchesSearch', () => {
     expect(matchesSearch(tx({}), 'cà ph')).toBe(true);
     expect(matchesSearch(tx({}), 'ăn uống')).toBe(true);
   });
+  it('matches NFD-typed text against NFC data', () => {
+    const nfd = 'phu\u0301c'.normalize('NFD');
+    expect(matchesSearch(tx({ store: 'Phúc Long' }), nfd)).toBe(true);
+  });
   it('rejects non-matches and accepts empty query', () => {
     expect(matchesSearch(tx({}), 'xyz')).toBe(false);
     expect(matchesSearch(tx({}), '  ')).toBe(true);
