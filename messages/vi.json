@@ -52,7 +52,21 @@
     "type": "Loại giao dịch"
   },
   "home": {
-    "greeting": "Chào {name}"
+    "greeting": "Chào {name}",
+    "quickTitle": "Nhập nhanh hoặc hỏi",
+    "quickPlaceholder": "ăn phở 45k · tháng này tiêu bao nhiêu cho cà phê?",
+    "edit": "Chỉnh",
+    "askSoon": "Hỏi đáp sắp có",
+    "spent": "Đã chi {month}",
+    "vsRange": "so với {range}",
+    "income": "Thu nhập",
+    "remaining": "Còn lại <amount>{value}</amount>",
+    "zaloTitle": "Ghi chi tiêu qua Zalo",
+    "zaloBody": "Liên kết Zalo để tag bot ghi chi tiêu bằng chữ hoặc ảnh hóa đơn.",
+    "zaloLink": "Liên kết Zalo",
+    "recent": "Gần đây",
+    "seeAll": "Xem tất cả",
+    "recentEmpty": "Chưa có giao dịch nào"
   },
   "settings": {
     "logout": "Đăng xuất"

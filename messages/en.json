@@ -52,7 +52,21 @@
     "type": "Transaction type"
   },
   "home": {
-    "greeting": "Hi {name}"
+    "greeting": "Hi {name}",
+    "quickTitle": "Quick entry or ask",
+    "quickPlaceholder": "pho 45k · how much did I spend on coffee this month?",
+    "edit": "Edit",
+    "askSoon": "Q&A is coming soon",
+    "spent": "Spent in {month}",
+    "vsRange": "vs {range}",
+    "income": "Income",
+    "remaining": "Left <amount>{value}</amount>",
+    "zaloTitle": "Log expenses via Zalo",
+    "zaloBody": "Link Zalo to log expenses by tagging the bot with text or a receipt photo.",
+    "zaloLink": "Link Zalo",
+    "recent": "Recent",
+    "seeAll": "See all",
+    "recentEmpty": "No transactions yet"
   },
   "settings": {
     "logout": "Sign out"
