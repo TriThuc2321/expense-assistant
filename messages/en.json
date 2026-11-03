@@ -31,6 +31,7 @@
     "transactions": "Transactions",
     "categories": "Categories",
     "settings": "Settings",
+    "main": "Main navigation",
     "addTransaction": "Add transaction"
   },
   "categories": {
@@ -107,7 +108,9 @@
     "empty": "No transactions match the filters. Try removing some."
   },
   "settings": {
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "darkMode": "Dark mode",
+    "account": "{email} · Google"
   },
   "errors": {
     "not_found": "Not found",

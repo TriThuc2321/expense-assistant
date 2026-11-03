@@ -6,18 +6,26 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { useToast } from '@/components/ui/toast';
 import { authClient } from '@/lib/auth-client';
 
 export function LogoutButton() {
-  const t = useTranslations('settings');
+  const t = useTranslations();
   const router = useRouter();
+  const toast = useToast();
   const [isPending, setIsPending] = useState(false);
 
   const signOut = async () => {
     setIsPending(true);
     try {
-      await authClient.signOut();
+      const { error } = await authClient.signOut();
+      if (error) {
+        toast.show({ title: t('errors.unknown') });
+        return;
+      }
       router.replace('/login');
+    } catch {
+      toast.show({ title: t('errors.unknown') });
     } finally {
       setIsPending(false);
     }
@@ -31,7 +39,7 @@ export function LogoutButton() {
       onPress={signOut}
     >
       <LogOut size={18} strokeWidth={1.75} />
-      {t('logout')}
+      {t('settings.logout')}
     </Button>
   );
 }

@@ -42,7 +42,10 @@ export function TabBar() {
   const right = NAV_ITEMS.slice(2);
 
   return (
-    <nav className="bg-canvas/88 border-subtle wide:hidden fixed inset-x-0 bottom-0 z-40 flex items-center border-t px-1.5 pt-1.5 pb-[calc(10px+env(safe-area-inset-bottom))] backdrop-blur-md">
+    <nav
+      aria-label={t('main')}
+      className="bg-canvas/88 border-subtle wide:hidden fixed inset-x-0 bottom-0 z-40 flex items-center border-t px-1.5 pt-1.5 pb-[calc(10px+env(safe-area-inset-bottom))] backdrop-blur-md"
+    >
       {left.map((item) => (
         <Tab key={item.href} item={item} pathname={pathname} />
       ))}

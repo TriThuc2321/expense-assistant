@@ -31,6 +31,7 @@
     "transactions": "Giao dịch",
     "categories": "Danh mục",
     "settings": "Cài đặt",
+    "main": "Điều hướng chính",
     "addTransaction": "Thêm giao dịch"
   },
   "categories": {
@@ -107,7 +108,9 @@
     "empty": "Không có giao dịch khớp bộ lọc. Thử bỏ bớt điều kiện."
   },
   "settings": {
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "darkMode": "Giao diện tối",
+    "account": "{email} · Google"
   },
   "errors": {
     "not_found": "Không tìm thấy dữ liệu",

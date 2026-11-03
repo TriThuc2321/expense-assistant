@@ -38,7 +38,7 @@ export function Sidebar({ user }: { user: AppSession['user'] }) {
         {t('nav.addTransaction')}
       </Button>
 
-      <nav className="flex flex-col gap-0.5">
+      <nav aria-label={t('nav.main')} className="flex flex-col gap-0.5">
         {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
           const active = isNavActive(href, pathname);
           return (
