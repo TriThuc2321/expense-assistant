@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import type { TxView } from '@/server/services/transactions';
 
-import { confirmReply, linkedReply, undoneReply } from './replies';
+import {
+  confirmManyReply,
+  confirmReply,
+  linkedReply,
+  undoneReply,
+} from './replies';
 
 const TODAY = '2026-10-14';
 
@@ -54,10 +59,10 @@ describe('replies', () => {
   });
 
   it('formats undone and linked replies', () => {
-    expect(undoneReply(tx({ note: 'phở' }))).toBe(
+    expect(undoneReply([tx({ note: 'phở' })])).toBe(
       '<p><b style="color:#f27806">↩ Đã hủy</b>: phở · <s>−45.000 ₫</s></p>',
     );
-    expect(undoneReply(tx())).toBe(
+    expect(undoneReply([tx()])).toBe(
       '<p><b style="color:#f27806">↩ Đã hủy</b>: Ăn sáng · <s>−45.000 ₫</s></p>',
     );
     expect(linkedReply('Thức')).toBe(
@@ -82,7 +87,44 @@ describe('replies', () => {
       { note: long },
     );
     expect(html.length).toBeLessThan(2000);
-    expect(undoneReply(tx({ note: long })).length).toBeLessThan(2000);
+    expect(undoneReply([tx({ note: long })]).length).toBeLessThan(2000);
     expect(linkedReply(long).length).toBeLessThan(2000);
+  });
+
+  it('lists several transactions in one confirm reply', () => {
+    const html = confirmManyReply(
+      [
+        tx({ store: 'Nguyễn Văn A' }),
+        tx(
+          { id: 't2', type: 'in', amount: 500000, date: '2026-10-13' },
+          { name: 'Lương', parentName: null },
+        ),
+      ],
+      TODAY,
+    );
+    expect(html).toBe(
+      '<p><b style="color:#15a85f">✓ Đã ghi 2 giao dịch</b></p>' +
+        '<p><b style="color:#db342e">−45.000 ₫</b> · <b>Ăn sáng</b> · Nguyễn Văn A · Hôm nay</p>' +
+        '<p><b style="color:#15a85f">+500.000 ₫</b> · <b>Lương</b> · Hôm qua</p>' +
+        '<p><i>Gõ <b>/undo</b> để hủy</i></p>',
+    );
+  });
+
+  it('lists several transactions in one undone reply', () => {
+    expect(undoneReply([tx({ store: 'A' }), tx({ note: 'phở' })])).toBe(
+      '<p><b style="color:#f27806">↩ Đã hủy 2 giao dịch</b></p>' +
+        '<p>A · <s>−45.000 ₫</s></p><p>phở · <s>−45.000 ₫</s></p>',
+    );
+  });
+
+  it('keeps a 20-transaction reply under 2000 chars', () => {
+    const long = '&'.repeat(500);
+    const txs = Array.from({ length: 20 }, () =>
+      tx({ store: long }, { name: long }),
+    );
+    const confirm = confirmManyReply(txs, TODAY);
+    expect(confirm.length).toBeLessThan(2000);
+    expect(confirm).toContain('giao dịch khác');
+    expect(undoneReply(txs).length).toBeLessThan(2000);
   });
 });

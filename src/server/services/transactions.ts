@@ -5,6 +5,7 @@ import {
   eq,
   gte,
   ilike,
+  inArray,
   isNotNull,
   isNull,
   lt,
@@ -149,39 +150,73 @@ export async function createTransaction(
   return getTransaction(userId, row.id);
 }
 
+// One INSERT statement, so every row shares the same created_at (Postgres
+// now() is fixed per transaction). Undo relies on that to treat the rows as
+// one batch.
+export async function createTransactions(
+  userId: string,
+  inputs: TxInput[],
+  source: 'app' | 'zalo' = 'app',
+): Promise<TxView[]> {
+  if (inputs.length === 0) return [];
+  for (const input of inputs) await assertCategory(userId, input);
+  const rows = await getDb()
+    .insert(transactions)
+    .values(inputs.map((input) => ({ ...input, userId, source })))
+    .returning({ id: transactions.id });
+  const views = await selectViews().where(
+    and(
+      eq(transactions.userId, userId),
+      inArray(
+        transactions.id,
+        rows.map((r) => r.id),
+      ),
+    ),
+  );
+  const byId = new Map(views.map((r) => [r.id, toView(r)]));
+  return rows.map((r) => byId.get(r.id)!);
+}
+
 export const UNDO_WINDOW_MS = 10 * 60 * 1000;
 
+// Undoes the newest zalo batch: every row created by the same insert, e.g.
+// all transfers read from one image.
 export async function undoLatestZaloTransaction(
   userId: string,
   now: Date = new Date(),
-): Promise<TxView | null> {
+): Promise<TxView[]> {
+  const zaloLive = and(
+    eq(transactions.userId, userId),
+    eq(transactions.source, 'zalo'),
+    isNull(transactions.deletedAt),
+  );
   const [latest] = await getDb()
     .select({ id: transactions.id })
     .from(transactions)
     .where(
       and(
-        eq(transactions.userId, userId),
-        eq(transactions.source, 'zalo'),
-        isNull(transactions.deletedAt),
+        zaloLive,
         gte(transactions.createdAt, new Date(now.getTime() - UNDO_WINDOW_MS)),
       ),
     )
     .orderBy(desc(transactions.createdAt))
     .limit(1);
-  if (!latest) return null;
-  const view = await getTransaction(userId, latest.id);
+  if (!latest) return [];
+  // Compared in SQL: JS Dates drop the microseconds Postgres stores.
+  const batch = and(
+    zaloLive,
+    sql`${transactions.createdAt} = (select ${transactions.createdAt} from ${transactions} where ${transactions.id} = ${latest.id})`,
+  );
+  const views = (
+    await selectViews().where(batch).orderBy(transactions.date)
+  ).map(toView);
   const deleted = await getDb()
     .update(transactions)
     .set({ deletedAt: now })
-    .where(
-      and(
-        eq(transactions.userId, userId),
-        eq(transactions.id, latest.id),
-        isNull(transactions.deletedAt),
-      ),
-    )
+    .where(batch)
     .returning({ id: transactions.id });
-  return deleted.length === 0 ? null : view;
+  const deletedIds = new Set(deleted.map((r) => r.id));
+  return views.filter((v) => deletedIds.has(v.id));
 }
 
 export async function updateTransaction(

@@ -14,6 +14,7 @@ import { quickParseToInput } from '@/server/services/quick-entry';
 import { MAX_CLAUDE_IMAGE_BYTES } from '@/server/services/receipts';
 import {
   createTransaction,
+  createTransactions,
   undoLatestZaloTransaction,
 } from '@/server/services/transactions';
 import {
@@ -23,7 +24,13 @@ import {
 
 import { sendMessage } from './client';
 import { downloadImage } from './download';
-import { REPLY, confirmReply, linkedReply, undoneReply } from './replies';
+import {
+  REPLY,
+  confirmManyReply,
+  confirmReply,
+  linkedReply,
+  undoneReply,
+} from './replies';
 import { type ZaloUpdate, classify } from './update';
 
 export async function handleZaloUpdate(
@@ -62,8 +69,8 @@ async function route(update: ZaloUpdate, now: Date): Promise<string | null> {
   const today = todayVn(now);
   switch (intent.kind) {
     case 'undo': {
-      const tx = await undoLatestZaloTransaction(userId, now);
-      return tx ? undoneReply(tx) : REPLY.nothingToUndo;
+      const txs = await undoLatestZaloTransaction(userId, now);
+      return txs.length > 0 ? undoneReply(txs) : REPLY.nothingToUndo;
     }
     case 'text':
       return handleText(userId, intent.text, today);
@@ -150,40 +157,49 @@ async function handleImage(
     return REPLY.imageError;
   }
 
-  const input = await readReceipt(userId, image, today);
-  if (!input) return REPLY.noTotal;
+  const inputs = await readReceipt(userId, image, today);
+  if (inputs.length === 0) return REPLY.noTotal;
 
-  const tx = await createTransaction(userId, input, 'zalo');
-  return confirmReply(tx, today, { note: input.note });
+  const txs = await createTransactions(userId, inputs, 'zalo');
+  return txs.length === 1
+    ? confirmReply(txs[0], today, { note: txs[0].note })
+    : confirmManyReply(txs, today);
 }
 
 async function readReceipt(
   userId: string,
   image: Extract<Awaited<ReturnType<typeof downloadImage>>, { ok: true }>,
   today: string,
-): Promise<TxInput | null> {
+): Promise<TxInput[]> {
   const categories = await loadAiCategories(userId);
-  if (categories.length === 0) return null;
+  if (categories.length === 0) return [];
 
   const receipt = await parseReceipt(image.bytes, image.mediaType, {
     today,
     categories,
   });
-  if (!receipt || !receipt.isReceipt || !receipt.total) return null;
+  if (!receipt?.isReceipt) return [];
 
-  const chosen = receipt.categoryId
-    ? categories.find((c) => c.id === receipt.categoryId)
-    : undefined;
-  const categoryId =
-    chosen?.id ?? (await resolveCategorySlug(userId, 'shop.goods', 'out'));
+  const inputs: TxInput[] = [];
+  let fallbackId: string | undefined;
+  for (const item of receipt.items) {
+    if (!(item.amount > 0)) continue;
+    const chosen = item.categoryId
+      ? categories.find((c) => c.id === item.categoryId)
+      : undefined;
+    const categoryId =
+      chosen?.id ??
+      (fallbackId ??= await resolveCategorySlug(userId, 'shop.goods', 'out'));
 
-  const input = txInputSchema.safeParse({
-    type: chosen?.type ?? 'out',
-    amount: Math.round(receipt.total),
-    categoryId,
-    store: clip(receipt.store),
-    note: clip(receipt.note),
-    date: receipt.date,
-  });
-  return input.success ? input.data : null;
+    const input = txInputSchema.safeParse({
+      type: chosen?.type ?? 'out',
+      amount: Math.round(item.amount),
+      categoryId,
+      store: clip(item.store),
+      note: clip(item.note),
+      date: item.date,
+    });
+    if (input.success) inputs.push(input.data);
+  }
+  return inputs;
 }

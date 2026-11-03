@@ -7,7 +7,7 @@ vi.mock('./client', () => ({
 
 import type { AiCategory } from './categories';
 
-import { parseReceipt } from './parse-receipt';
+import { MAX_RECEIPT_ITEMS, parseReceipt } from './parse-receipt';
 import { parseText } from './parse-text';
 
 const categories: AiCategory[] = [
@@ -62,27 +62,21 @@ describe('parseText', () => {
 });
 
 describe('parseReceipt', () => {
+  const item = {
+    amount: 90000,
+    store: 'Phở 24',
+    date: '2026-10-13',
+    categoryId: 'pho',
+    note: 'Phở bò',
+  };
+
   it('sends the image as a data URL before the text', async () => {
     parse.mockResolvedValue({
-      output_parsed: {
-        isReceipt: true,
-        total: 90000,
-        store: 'Phở 24',
-        date: '2026-10-13',
-        categoryId: 'pho',
-        note: 'Phở bò',
-      },
+      output_parsed: { isReceipt: true, items: [item] },
     });
     const image = Buffer.from('abc');
     const result = await parseReceipt(image, 'image/png', ctx);
-    expect(result).toEqual({
-      isReceipt: true,
-      total: 90000,
-      store: 'Phở 24',
-      date: '2026-10-13',
-      categoryId: 'pho',
-      note: 'Phở bò',
-    });
+    expect(result).toEqual({ isReceipt: true, items: [item] });
     const content = parse.mock.calls[0][0].input[0].content;
     expect(content[0]).toEqual({
       type: 'input_image',
@@ -90,6 +84,27 @@ describe('parseReceipt', () => {
       image_url: `data:image/png;base64,${image.toString('base64')}`,
     });
     expect(content[1].type).toBe('input_text');
+  });
+
+  it('returns every transfer, normalizes dates and caps the list', async () => {
+    parse.mockResolvedValue({
+      output_parsed: {
+        isReceipt: true,
+        items: [
+          { ...item, date: null },
+          { ...item, amount: 500000, categoryId: 'salary' },
+          ...Array.from({ length: 30 }, () => item),
+        ],
+      },
+    });
+    const result = await parseReceipt(Buffer.from('a'), 'image/png', ctx);
+    expect(result?.items).toHaveLength(MAX_RECEIPT_ITEMS);
+    expect(result?.items[0].date).toBe(ctx.today);
+    expect(result?.items[1]).toEqual({
+      ...item,
+      amount: 500000,
+      categoryId: 'salary',
+    });
   });
 
   it('returns null when there is no parsed output', async () => {

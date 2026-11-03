@@ -4,6 +4,9 @@ import { LOCALE } from '@/constants/locale';
 import { dateLabel, formatSignedVnd } from '@/lib/format';
 
 const FIELD_MAX = 120;
+const LIST_FIELD_MAX = 40;
+// Zalo rejects text messages over 2000 chars; leave room for header and hint.
+const LIST_BUDGET = 1700;
 
 // Zalo strips colors outside its palette; these are the hex codes its text_styles API documents.
 const COLOR = {
@@ -40,8 +43,27 @@ export function escapeHtml(s: string): string {
     .replace(/'/g, '&#39;');
 }
 
-function field(s: string): string {
-  return escapeHtml(s.slice(0, FIELD_MAX));
+function field(s: string, max = FIELD_MAX): string {
+  return escapeHtml(s.slice(0, max));
+}
+
+function signedAmount(tx: TxView): string {
+  return color(
+    tx.type === 'in' ? 'green' : 'red',
+    formatSignedVnd(tx.amount, tx.type),
+  );
+}
+
+// Adds lines until the budget runs out, then summarizes the rest.
+function boundedList(lines: string[]): string {
+  let html = '';
+  for (let i = 0; i < lines.length; i++) {
+    if (html.length + lines[i].length > LIST_BUDGET) {
+      return html + `<p><i>… và ${lines.length - i} giao dịch khác</i></p>`;
+    }
+    html += lines[i];
+  }
+  return html;
 }
 
 export function confirmReply(
@@ -53,19 +75,48 @@ export function confirmReply(
   const category = parentName
     ? `${field(parentName)} › ${field(name)}`
     : field(name);
-  const amount = color(
-    tx.type === 'in' ? 'green' : 'red',
-    formatSignedVnd(tx.amount, tx.type),
-  );
+  const amount = signedAmount(tx);
   let html = `<p>${color('green', '✓')} <b>${category}</b></p>`;
   html += `<p>${amount} · ${dateLabel(tx.date, today, LOCALE.VI)}</p>`;
   if (opts?.note) html += `<p><i>${field(opts.note)}</i></p>`;
   return html + HINT('/undo');
 }
 
-export function undoneReply(tx: TxView): string {
-  const label = field(tx.note ?? tx.category.name);
-  return `<p>${color('orange', '↩ Đã hủy')}: ${label} · <s>${formatSignedVnd(tx.amount, tx.type)}</s></p>`;
+export function confirmManyReply(txs: TxView[], today: string): string {
+  const lines = txs.map((tx) => {
+    const who = tx.store ?? tx.note;
+    const parts = [
+      signedAmount(tx),
+      `<b>${field(tx.category.name, LIST_FIELD_MAX)}</b>`,
+      ...(who ? [field(who, LIST_FIELD_MAX)] : []),
+      dateLabel(tx.date, today, LOCALE.VI),
+    ];
+    return `<p>${parts.join(' · ')}</p>`;
+  });
+  return (
+    `<p>${color('green', `✓ Đã ghi ${txs.length} giao dịch`)}</p>` +
+    boundedList(lines) +
+    HINT('/undo')
+  );
+}
+
+export function undoneReply(txs: TxView[]): string {
+  if (txs.length === 1) {
+    const [tx] = txs;
+    const label = field(tx.note ?? tx.category.name);
+    return `<p>${color('orange', '↩ Đã hủy')}: ${label} · <s>${formatSignedVnd(tx.amount, tx.type)}</s></p>`;
+  }
+  const lines = txs.map((tx) => {
+    const label = field(
+      tx.store ?? tx.note ?? tx.category.name,
+      LIST_FIELD_MAX,
+    );
+    return `<p>${label} · <s>${formatSignedVnd(tx.amount, tx.type)}</s></p>`;
+  });
+  return (
+    `<p>${color('orange', `↩ Đã hủy ${txs.length} giao dịch`)}</p>` +
+    boundedList(lines)
+  );
 }
 
 export function linkedReply(userName: string): string {

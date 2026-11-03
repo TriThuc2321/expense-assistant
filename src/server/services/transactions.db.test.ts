@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { LOCALE } from '@/constants/locale';
@@ -11,6 +11,7 @@ import { ServiceError } from './errors';
 import {
   type TxInput,
   createTransaction,
+  createTransactions,
   getTransaction,
   hasTransactionsBefore,
   listTransactions,
@@ -221,23 +222,91 @@ describe('zalo additions', () => {
       .update(transactions)
       .set({ createdAt: ago(1) })
       .where(eq(transactions.id, app.id));
-    expect((await undoLatestZaloTransaction(u.id, now))?.id).toBe(newest.id);
+    expect(
+      (await undoLatestZaloTransaction(u.id, now)).map((t) => t.id),
+    ).toEqual([newest.id]);
     await expect(getTransaction(u.id, newest.id)).rejects.toThrow();
     expect((await getTransaction(u.id, older.id)).id).toBe(older.id);
     expect((await getTransaction(u.id, app.id)).id).toBe(app.id);
   });
 
+  it('createTransactions inserts one batch sharing created_at', async () => {
+    const { u, out, inn } = await setup();
+    const txs = await createTransactions(
+      u.id,
+      [
+        input(out.id, { amount: 1000 }),
+        input(inn.id, { type: 'in', amount: 2000 }),
+        input(out.id, { amount: 3000 }),
+      ],
+      'zalo',
+    );
+    expect(txs.map((t) => [t.amount, t.type, t.source])).toEqual([
+      [1000, 'out', 'zalo'],
+      [2000, 'in', 'zalo'],
+      [3000, 'out', 'zalo'],
+    ]);
+    const [{ n }] = await getDb()
+      .select({
+        n: sql<number>`count(distinct ${transactions.createdAt})::int`,
+      })
+      .from(transactions)
+      .where(
+        inArray(
+          transactions.id,
+          txs.map((t) => t.id),
+        ),
+      );
+    expect(n).toBe(1);
+  });
+
+  it('createTransactions rejects a category of the wrong type', async () => {
+    const { u, out } = await setup();
+    await expect(
+      createTransactions(u.id, [input(out.id, { type: 'in' })], 'zalo'),
+    ).rejects.toThrow();
+  });
+
+  it('undo deletes the whole newest zalo batch', async () => {
+    const { u, out, inn } = await setup();
+    const older = await zaloAt(u.id, out.id, ago(5));
+    const batch = await createTransactions(
+      u.id,
+      [input(out.id), input(inn.id, { type: 'in' })],
+      'zalo',
+    );
+    await getDb()
+      .update(transactions)
+      .set({
+        createdAt: sql`${transactions.createdAt} - (now() - ${ago(1).toISOString()}::timestamptz)`,
+      })
+      .where(
+        inArray(
+          transactions.id,
+          batch.map((t) => t.id),
+        ),
+      );
+    const undone = await undoLatestZaloTransaction(u.id, now);
+    expect(undone.map((t) => t.id).sort()).toEqual(
+      batch.map((t) => t.id).sort(),
+    );
+    for (const t of batch) {
+      await expect(getTransaction(u.id, t.id)).rejects.toThrow();
+    }
+    expect((await getTransaction(u.id, older.id)).id).toBe(older.id);
+  });
+
   it('undo ignores zalo txs older than the window', async () => {
     const { u, out } = await setup();
     await zaloAt(u.id, out.id, ago(11));
-    expect(await undoLatestZaloTransaction(u.id, now)).toBeNull();
+    expect(await undoLatestZaloTransaction(u.id, now)).toEqual([]);
   });
 
   it('undo never touches another user', async () => {
     const { u, out } = await setup();
     const b = await setup();
     const tx = await zaloAt(b.u.id, b.out.id, ago(1));
-    expect(await undoLatestZaloTransaction(u.id, now)).toBeNull();
+    expect(await undoLatestZaloTransaction(u.id, now)).toEqual([]);
     expect((await getTransaction(b.u.id, tx.id)).id).toBe(tx.id);
     void out;
   });
