@@ -1,81 +1,150 @@
 @import '@heroui/styles';
 @import './customComponent.css' layer(components);
+@import './tokens/colors.css';
+@import './tokens/elevation.css';
+@import './tokens/motion.css';
+@import './tokens/radius.css';
+@import './tokens/spacing.css';
+@import './tokens/typography.css';
 
 :root,
 .light,
 .default,
+.dark,
 [data-theme='light'],
-[data-theme='default'] {
-  --accent: oklch(53.67% 0.2162 27.84);
-  --accent-foreground: oklch(99.11% 0 0);
-  --background: oklch(97.02% 0.0018 27.74);
-  --border: oklch(84.522% 0.0001 271.152);
-  --danger: oklch(43.46% 0.1757 27.74);
-  --danger-foreground: oklch(98% 0.0194 27.64);
-  --default: oklch(96.416% 0.00011 271.152);
-  --default-foreground: oklch(21.03% 0.0059 27.99);
-  --field-background: oklch(100% 0 27.99);
-  --field-foreground: oklch(21.03% 0 27.99);
-  --field-placeholder: oklch(55.17% 0 27.99);
-  --focus: oklch(58.14% 0.2349 27.99);
-  --foreground: oklch(21.03% 0 27.99);
-  --muted: oklch(55.17% 0 27.99);
-  --overlay: oklch(100% 0 27.99);
-  --overlay-foreground: oklch(21.03% 0 27.99);
-  --scrollbar: oklch(87.1% 0 27.99);
-  --segment: oklch(100% 0 27.99);
-  --segment-foreground: oklch(21.03% 0 27.99);
-  --separator: oklch(92% 0 27.99);
-  --success: oklch(73.31% 0.1932 150.75);
-  --success-foreground: oklch(15% 0.03 150.75);
-  --surface: oklch(100% 0 27.99);
-  --surface-foreground: oklch(21.03% 0 27.99);
-  --surface-secondary: oklch(95.24% 0 27.99);
-  --surface-secondary-foreground: oklch(21.03% 0 27.99);
-  --surface-tertiary: oklch(93.73% 0 27.99);
-  --surface-tertiary-foreground: oklch(21.03% 0 27.99);
-  --warning: oklch(78.48% 0.159 72.51);
-  --warning-foreground: oklch(15% 0.03 72.51);
+[data-theme='default'],
+[data-theme='dark'] {
+  --accent: var(--accent-solid);
+  --accent-hover: var(--accent-solid-hover);
+  --accent-foreground: var(--text-on-accent);
+  --background: var(--bg-base);
+  --foreground: var(--text-strong);
+  --surface: var(--surface-card);
+  --surface-foreground: var(--text-strong);
+  --surface-secondary: var(--surface-inset);
+  --surface-secondary-foreground: var(--text-strong);
+  --surface-tertiary: var(--bg-sunken);
+  --surface-tertiary-foreground: var(--text-strong);
+  --overlay: var(--surface-overlay);
+  --overlay-foreground: var(--text-strong);
+  --muted: var(--text-muted);
+  --border: var(--border-subtle);
+  --separator: var(--border-subtle);
+  --field-background: var(--bg-canvas);
+  --field-foreground: var(--text-strong);
+  --field-placeholder: var(--text-subtle);
+  --focus: var(--border-focus);
+  --link: var(--text-link);
+  --scrollbar: var(--border-default);
+  --segment: var(--surface-card);
+  --segment-foreground: var(--text-strong);
+  --danger: var(--danger-solid);
+  --danger-hover: var(--danger-solid-hover);
+  --danger-foreground: var(--text-on-accent);
+  --success: var(--success-solid);
+  --success-foreground: var(--text-on-accent);
+  --warning: var(--warning-solid);
+  --warning-foreground: var(--ink-900);
+  --default: var(--bg-sunken);
+  --default-foreground: var(--text-body);
 
-  --radius: 0.25rem;
-  --field-radius: 0.5rem;
-
-  --font-sans: var(--font-inter);
+  --radius: 14px;
+  --field-radius: 14px;
 }
 
 .dark,
 [data-theme='dark'] {
   color-scheme: dark;
-  --accent: oklch(48.094% 0.18947 27.004);
-  --accent-foreground: oklch(99.11% 0 0);
-  --background: oklch(14.5% 0.022 268);
-  --border: oklch(28% 0.032 268);
-  --danger: oklch(52% 0.2 28.56);
-  --danger-foreground: oklch(98% 0.015 28.56);
-  --default: oklch(26% 0.028 268);
-  --default-foreground: oklch(94% 0.008 55);
-  --field-background: oklch(19% 0.024 266);
-  --field-foreground: oklch(94% 0.008 55);
-  --field-placeholder: oklch(58% 0.012 50);
-  --focus: oklch(58.14% 0.2349 27.99);
-  --foreground: oklch(94% 0.008 55);
-  --muted: oklch(60% 0.014 48);
-  --overlay: oklch(19% 0.024 266);
-  --overlay-foreground: oklch(94% 0.008 55);
-  --scrollbar: oklch(35% 0.028 266);
-  --segment: oklch(30% 0.03 267);
-  --segment-foreground: oklch(94% 0.008 55);
-  --separator: oklch(23% 0.026 267);
-  --success: oklch(68% 0.172 148);
-  --success-foreground: oklch(14% 0.04 148);
-  --surface: oklch(19.5% 0.026 270);
-  --surface-foreground: oklch(94% 0.008 55);
-  --surface-secondary: oklch(23.5% 0.029 269);
-  --surface-secondary-foreground: oklch(94% 0.008 55);
-  --surface-tertiary: oklch(21.5% 0.027 268);
-  --surface-tertiary-foreground: oklch(94% 0.008 55);
-  --warning: oklch(76% 0.148 68);
-  --warning-foreground: oklch(14% 0.04 68);
+}
+
+@theme inline {
+  --breakpoint-wide: 900px;
+
+  --font-sans: var(--font-space-grotesk), 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-app: var(--bg-base);
+  --color-canvas: var(--bg-canvas);
+  --color-sunken: var(--bg-sunken);
+  --color-card: var(--surface-card);
+  --color-inset: var(--surface-inset);
+  --color-hover: var(--surface-hover);
+  --color-selected: var(--surface-selected);
+  --color-strong: var(--text-strong);
+  --color-body: var(--text-body);
+  --color-accent-text: var(--accent-text);
+  --color-success-text: var(--success-text);
+  --color-danger-text: var(--danger-text);
+
+  --color-cat-food: var(--cat-food);
+  --color-cat-home: var(--cat-home);
+  --color-cat-move: var(--cat-move);
+  --color-cat-shop: var(--cat-shop);
+  --color-cat-fun: var(--cat-fun);
+  --color-cat-health: var(--cat-health);
+  --color-cat-income: var(--cat-income);
+
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+}
+
+@utility text-subtle {
+  color: var(--text-subtle);
+}
+
+@utility border-subtle {
+  border-color: var(--border-subtle);
+}
+
+@utility type-h1 {
+  font: 500 38px/1.2 var(--font-display);
+}
+
+@utility type-h2 {
+  font: 500 31px/1.2 var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+@utility type-h3 {
+  font: 500 21px/1.2 var(--font-display);
+}
+
+@utility type-h4 {
+  font: 600 18px/1.2 var(--font-display);
+}
+
+@utility type-body {
+  font: 400 16px/1.65 var(--font-body);
+}
+
+@utility type-body-sm {
+  font: 400 15px/1.5 var(--font-body);
+}
+
+@utility type-label {
+  font: 500 13px/1.5 var(--font-body);
+}
+
+@utility type-caption {
+  font: 400 12px/1.5 var(--font-body);
+}
+
+@utility type-overline {
+  font: 500 11px/1.4 var(--font-plex);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+::selection {
+  background: var(--blue-200);
+  color: var(--ink-900);
+}
+
+[data-theme='dark'] ::selection {
+  background: var(--blue-700);
+  color: #fff;
 }
 
 [data-theme='dark'] [data-hide-on-theme='dark'],

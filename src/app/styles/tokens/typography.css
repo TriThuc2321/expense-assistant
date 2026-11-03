@@ -1,0 +1,10 @@
+:root {
+  --font-display:
+    var(--font-space-grotesk), 'Helvetica Neue', Arial, sans-serif;
+  --font-body: var(--font-space-grotesk), 'Helvetica Neue', Arial, sans-serif;
+  --font-plex:
+    var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --tracking-heading: -0.02em;
+  --tracking-caps: 0.08em;
+}

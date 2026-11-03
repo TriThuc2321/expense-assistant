@@ -1,0 +1,8 @@
+@theme {
+  --radius-tag: 10px;
+  --radius-control: 14px;
+  --radius-card: 20px;
+  --radius-panel: 24px;
+  --radius-modal: 28px;
+  --radius-sheet: 32px;
+}

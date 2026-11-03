@@ -1,52 +1,63 @@
 import type { Metadata } from 'next';
 
-import { buttonVariants } from '@heroui/react';
+import { Alert } from '@heroui/react';
 import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
-import { FaGoogle } from 'react-icons/fa';
+import { redirect } from 'next/navigation';
 
-import { LogoIcon } from '@/assets/icons';
-import { SwitchLocale, ThemeSwitch } from '@/components/layouts';
+import { GoogleButton } from '@/features/auth/google-button';
+import { LogoTile } from '@/features/shell/logo-tile';
+import { NOT_INVITED } from '@/server/auth/hooks';
+import { getAllowedSession } from '@/server/auth/session';
 
-export default async function Page() {
-  const t = await getTranslations('auth');
+export default async function Page({ searchParams }: PageProps<'/login'>) {
+  const [t, tCommon, { error }, session] = await Promise.all([
+    getTranslations('auth'),
+    getTranslations('common'),
+    searchParams,
+    getAllowedSession(),
+  ]);
+
+  if (session.status === 'ok') redirect('/');
+
+  const errorKey = !error
+    ? null
+    : error === NOT_INVITED
+      ? 'not_invited'
+      : 'google_login_failed';
 
   return (
-    <div className="flex min-h-full flex-col items-center justify-center">
-      <div className="absolute top-4 right-4 flex items-center gap-1">
-        <SwitchLocale />
-        <ThemeSwitch />
+    <div className="flex flex-col gap-7">
+      <div className="flex items-center gap-2.5">
+        <LogoTile size={40} />
+        <span className="type-h3 text-strong">{tCommon('appName')}</span>
       </div>
 
-      <div className="mb-8">
-        <LogoIcon className="h-8" />
+      <div className="flex flex-col gap-2.5">
+        <div className="type-overline text-subtle font-mono uppercase">
+          {t('overline')}
+        </div>
+        <h1 className="type-h1 text-strong text-pretty">{t('headline')}</h1>
+        <p className="type-body text-muted">{t('subtitle')}</p>
       </div>
 
-      <div className="mb-12 text-center">
-        <h1 className="text-foreground mb-2 text-3xl font-bold">
-          {t('welcomeBack')}
-        </h1>
-        <p className="text-default-700 max-w-md text-lg">
-          {t('welcomeSubtitle')}
-        </p>
+      {errorKey && (
+        <Alert status="danger">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Title>{t(`errors.${errorKey}`)}</Alert.Title>
+          </Alert.Content>
+        </Alert>
+      )}
+
+      <div className="bg-card border-subtle rounded-card flex flex-col gap-3.5 border p-5 shadow-sm">
+        <GoogleButton />
+        <p className="type-caption text-subtle text-center">{t('footer')}</p>
       </div>
-
-      <Link
-        href=""
-        prefetch={false}
-        className={buttonVariants({ size: 'lg', fullWidth: true })}
-      >
-        <FaGoogle className="h-5 w-5 text-white" />
-        {t('continueWithGoogle')}
-      </Link>
-
-      <p className="text-default-600 mt-4 text-center text-sm">
-        {t('loginFooter')}
-      </p>
     </div>
   );
 }
 
-export const metadata: Metadata = {
-  title: 'Login',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('auth');
+  return { title: t('login') };
+}
