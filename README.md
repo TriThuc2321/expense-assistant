@@ -44,18 +44,29 @@ Sau đó chạy song song với `pnpm dev`:
 pnpm tunnel
 ```
 
+## Bot Zalo
+
+Biến môi trường (xem `.env.example`): `ZALO_BOT_TOKEN`, `ZALO_WEBHOOK_SECRET` (8-256 ký tự, Zalo gửi lại trong header `X-Bot-Api-Secret-Token`), `ANTHROPIC_API_KEY`, các biến `R2_*` và `CRON_SECRET` (tối thiểu 16 ký tự).
+
+Đăng ký webhook khi dev: chạy `pnpm tunnel` (cần `DEV_TUNNEL_HOST`, xem trên), rồi `pnpm zalo:webhook`. Lệnh này gọi `setWebhook` tới `https://<DEV_TUNNEL_HOST>/api/zalo/webhook`; có thể truyền URL gốc khác: `pnpm zalo:webhook https://example.com`.
+
+Liên kết tài khoản: vào Cài đặt › Liên kết Zalo để lấy mã, rồi nhắn `/link <mã>` cho bot Zalo. Từ đó tin nhắn và ảnh hóa đơn của tài khoản Zalo đó được ghi vào chi tiêu của bạn.
+
+Dọn dữ liệu: đặt cron hằng ngày gọi `GET /api/cron/cleanup` với header `Authorization: Bearer $CRON_SECRET` (Vercel Cron tự gửi header này khi `CRON_SECRET` được đặt trong project).
+
 ## Scripts
 
-| Lệnh               | Mô tả                                                    |
-| ------------------ | -------------------------------------------------------- |
-| `pnpm dev`         | Dev server                                               |
-| `pnpm tunnel`      | Mở tunnel HTTPS cho webhook Zalo                         |
-| `pnpm test`        | Chạy toàn bộ test: unit + DB (cần Postgres trong Docker) |
-| `pnpm test:unit`   | Chỉ unit test, không cần DB                              |
-| `pnpm db:generate` | Sinh migration từ schema Drizzle                         |
-| `pnpm db:migrate`  | Áp migration vào DB                                      |
-| `pnpm db:studio`   | Drizzle Studio: xem và sửa DB trên trình duyệt           |
-| `pnpm lint`        | oxlint                                                   |
-| `pnpm format`      | oxfmt                                                    |
-| `pnpm typecheck`   | Kiểm tra kiểu                                            |
-| `pnpm build`       | Build production                                         |
+| Lệnh                | Mô tả                                                    |
+| ------------------- | -------------------------------------------------------- |
+| `pnpm dev`          | Dev server                                               |
+| `pnpm tunnel`       | Mở tunnel HTTPS cho webhook Zalo                         |
+| `pnpm zalo:webhook` | Đăng ký webhook của bot Zalo                             |
+| `pnpm test`         | Chạy toàn bộ test: unit + DB (cần Postgres trong Docker) |
+| `pnpm test:unit`    | Chỉ unit test, không cần DB                              |
+| `pnpm db:generate`  | Sinh migration từ schema Drizzle                         |
+| `pnpm db:migrate`   | Áp migration vào DB                                      |
+| `pnpm db:studio`    | Drizzle Studio: xem và sửa DB trên trình duyệt           |
+| `pnpm lint`         | oxlint                                                   |
+| `pnpm format`       | oxfmt                                                    |
+| `pnpm typecheck`    | Kiểm tra kiểu                                            |
+| `pnpm build`        | Build production                                         |
