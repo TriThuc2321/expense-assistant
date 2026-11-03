@@ -68,6 +68,26 @@
     "seeAll": "See all",
     "recentEmpty": "No transactions yet"
   },
+  "transactions": {
+    "summary": "{count} transactions · spent {sum}",
+    "add": "Add",
+    "search": "Search",
+    "searchPlaceholder": "Search by note, store, category",
+    "filter": "Filters",
+    "period": "Period",
+    "periodThis": "This month",
+    "periodLast": "Last month",
+    "periodAll": "All",
+    "category": "Category",
+    "amountFrom": "Amount from",
+    "amountTo": "To",
+    "noLimit": "No limit",
+    "store": "Store",
+    "storePlaceholder": "Highlands, Grab…",
+    "clear": "Clear filters",
+    "loadMore": "Load more",
+    "empty": "No transactions match the filters. Try removing some."
+  },
   "settings": {
     "logout": "Sign out"
   },

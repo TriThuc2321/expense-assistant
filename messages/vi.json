@@ -68,6 +68,26 @@
     "seeAll": "Xem tất cả",
     "recentEmpty": "Chưa có giao dịch nào"
   },
+  "transactions": {
+    "summary": "{count} giao dịch · chi {sum}",
+    "add": "Thêm",
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tìm theo ghi chú, cửa hàng, danh mục",
+    "filter": "Bộ lọc",
+    "period": "Khoảng thời gian",
+    "periodThis": "Tháng này",
+    "periodLast": "Tháng trước",
+    "periodAll": "Tất cả",
+    "category": "Danh mục",
+    "amountFrom": "Số tiền từ",
+    "amountTo": "Đến",
+    "noLimit": "Không giới hạn",
+    "store": "Cửa hàng",
+    "storePlaceholder": "Highlands, Grab…",
+    "clear": "Xóa bộ lọc",
+    "loadMore": "Xem thêm",
+    "empty": "Không có giao dịch khớp bộ lọc. Thử bỏ bớt điều kiện."
+  },
   "settings": {
     "logout": "Đăng xuất"
   },

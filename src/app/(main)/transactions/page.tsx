@@ -1,12 +1,44 @@
 import { getTranslations } from 'next-intl/server';
 
-export default async function TransactionsPage() {
-  const t = await getTranslations('nav');
+import {
+  parseTxParams,
+  toTxFilter,
+} from '@/features/transactions/search-params';
+import { TransactionsView } from '@/features/transactions/transactions-view';
+import { todayVn } from '@/lib/dates';
+import { requireSession } from '@/server/auth/session';
+import {
+  hasTransactionsBefore,
+  listTransactions,
+} from '@/server/services/transactions';
+
+export default async function TransactionsPage(
+  props: PageProps<'/transactions'>,
+) {
+  const { user } = await requireSession();
+  const params = parseTxParams(await props.searchParams);
+  const today = todayVn();
+  const filter = toTxFilter(params, today);
+
+  const [txs, hasMore] = await Promise.all([
+    listTransactions(user.id, filter),
+    params.period === 'all' && filter.from
+      ? hasTransactionsBefore(user.id, filter.from, {
+          categoryId: filter.categoryId,
+          min: filter.min,
+          max: filter.max,
+          store: filter.store,
+        })
+      : false,
+  ]);
 
   return (
-    <div className="mx-auto w-full max-w-[880px]">
-      <h1 className="type-h2 text-strong">{t('transactions')}</h1>
-    </div>
+    <TransactionsView
+      txs={txs}
+      today={today}
+      params={params}
+      hasMore={hasMore}
+    />
   );
 }
 
