@@ -2,7 +2,7 @@ import { getSessionCookie } from 'better-auth/cookies';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const LOGIN_PATH = '/login';
-const PUBLIC_PREFIXES = ['/api/auth/', '/api/zalo/'];
+const PUBLIC_PREFIXES = ['/api/auth/', '/api/zalo/', '/api/cron/'];
 
 export function isPublicPath(pathname: string): boolean {
   return (

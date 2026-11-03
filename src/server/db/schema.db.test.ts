@@ -2,7 +2,13 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { getDb } from './index';
-import { categories, transactions, user } from './schema';
+import {
+  categories,
+  transactions,
+  user,
+  zaloLinkCodes,
+  zaloLinks,
+} from './schema';
 import { createTestUser, resetDb } from './test-utils';
 
 const base = {
@@ -68,5 +74,22 @@ describe('schema constraints', () => {
     await getDb().delete(user).where(eq(user.id, u.id));
     const rows = await getDb().select().from(categories);
     expect(rows).toHaveLength(0);
+  });
+
+  it('cascades zalo rows when the user is deleted', async () => {
+    const u = await createTestUser();
+    await getDb()
+      .insert(zaloLinks)
+      .values({ zaloUserId: 'z1', userId: u.id, displayName: 'An' });
+    await getDb()
+      .insert(zaloLinkCodes)
+      .values({
+        code: 'ABC123',
+        userId: u.id,
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+    await getDb().delete(user).where(eq(user.id, u.id));
+    expect(await getDb().select().from(zaloLinks)).toHaveLength(0);
+    expect(await getDb().select().from(zaloLinkCodes)).toHaveLength(0);
   });
 });
