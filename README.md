@@ -1,4 +1,4 @@
-# TH Expense
+# Sổ Chi
 
 Web app quản lý chi tiêu cá nhân và nhóm, tích hợp bot Zalo: nhắn tin hoặc gửi ảnh hóa đơn vào nhóm Zalo, bot tự đọc và ghi chi tiêu.
 
@@ -8,11 +8,22 @@ Next.js 16 (App Router) · HeroUI v3 · Tailwind 4 · Postgres + Drizzle · bett
 
 ## Chạy local
 
+Cần Node, pnpm và Docker.
+
 ```bash
 pnpm install
-cp .env.example .env.local   # điền các biến
+docker compose up -d --wait   # Postgres ở localhost:5433, tự tạo DB expense và expense_test
+cp .env.example .env.local    # điền các biến
+pnpm db:migrate
 pnpm dev
 ```
+
+### Biến môi trường
+
+- `BETTER_AUTH_SECRET`: tạo bằng `openssl rand -base64 32`.
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: tạo OAuth client trên Google Cloud Console và thêm redirect URI `http://localhost:3000/api/auth/callback/google`.
+- `ALLOWED_EMAILS`: danh sách email được phép đăng nhập, cách nhau bằng dấu phẩy, không phân biệt hoa thường. Email không có trong danh sách bị chặn.
+- Các biến Zalo, Anthropic, R2 và `CRON_SECRET` là tùy chọn cho đến Phase 3, chưa cần để chạy app.
 
 Webhook Zalo cần URL HTTPS công khai, dev dùng ngrok với domain tĩnh (làm một lần):
 
@@ -29,11 +40,16 @@ pnpm tunnel
 
 ## Scripts
 
-| Lệnh             | Mô tả                            |
-| ---------------- | -------------------------------- |
-| `pnpm dev`       | Dev server                       |
-| `pnpm tunnel`    | Mở tunnel HTTPS cho webhook Zalo |
-| `pnpm lint`      | oxlint                           |
-| `pnpm format`    | oxfmt                            |
-| `pnpm typecheck` | Kiểm tra kiểu                    |
-| `pnpm build`     | Build production                 |
+| Lệnh               | Mô tả                                                    |
+| ------------------ | -------------------------------------------------------- |
+| `pnpm dev`         | Dev server                                               |
+| `pnpm tunnel`      | Mở tunnel HTTPS cho webhook Zalo                         |
+| `pnpm test`        | Chạy toàn bộ test: unit + DB (cần Postgres trong Docker) |
+| `pnpm test:unit`   | Chỉ unit test, không cần DB                              |
+| `pnpm db:generate` | Sinh migration từ schema Drizzle                         |
+| `pnpm db:migrate`  | Áp migration vào DB                                      |
+| `pnpm db:studio`   | Drizzle Studio: xem và sửa DB trên trình duyệt           |
+| `pnpm lint`        | oxlint                                                   |
+| `pnpm format`      | oxfmt                                                    |
+| `pnpm typecheck`   | Kiểm tra kiểu                                            |
+| `pnpm build`       | Build production                                         |
