@@ -16,12 +16,21 @@ describe('isPublicPath', () => {
     '/api/auth/callback/google',
     '/api/zalo/webhook',
     '/api/cron/cleanup',
+    '/manifest.webmanifest',
+    '/robots.txt',
+    '/icon.png',
+    '/apple-icon.png',
+    '/opengraph-image',
   ])('%s is public', (p) => expect(isPublicPath(p)).toBe(true));
 
-  it.each(['/', '/transactions', '/settings', '/loginx', '/api/authx'])(
-    '%s is protected',
-    (p) => expect(isPublicPath(p)).toBe(false),
-  );
+  it.each([
+    '/',
+    '/transactions',
+    '/settings',
+    '/loginx',
+    '/api/authx',
+    '/robots.txtx',
+  ])('%s is protected', (p) => expect(isPublicPath(p)).toBe(false));
 });
 
 describe('proxy', () => {
