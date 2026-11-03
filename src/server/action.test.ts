@@ -54,6 +54,14 @@ describe('defineAction', () => {
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 
+  it('skips refresh when options.refresh is false', async () => {
+    const res = await defineAction(schema, async () => 1, { refresh: false })({
+      n: 1,
+    });
+    expect(res).toEqual({ ok: true, data: 1 });
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
   it('lets a redirect from requireSession propagate', async () => {
     const err = Object.assign(new Error('NEXT_REDIRECT'), {
       digest: 'NEXT_REDIRECT;replace;/login;307;',

@@ -12,6 +12,7 @@ import { ServiceError } from '@/server/services/errors';
 export function defineAction<S extends z.ZodType, T>(
   schema: S,
   handler: (userId: string, input: z.infer<S>) => Promise<T>,
+  options: { refresh?: boolean } = {},
 ): (input: z.input<S>) => Promise<ActionResult<T>> {
   return async (input) => {
     const session = await requireSession();
@@ -19,7 +20,7 @@ export function defineAction<S extends z.ZodType, T>(
     if (!parsed.success) return { ok: false, error: 'invalid_input' };
     try {
       const data = await handler(session.user.id, parsed.data);
-      refresh();
+      if (options.refresh !== false) refresh();
       return { ok: true, data };
     } catch (err) {
       unstable_rethrow(err);

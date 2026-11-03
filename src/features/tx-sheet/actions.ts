@@ -43,8 +43,10 @@ const restore = defineAction(idSchema, (userId, { id }) =>
   restoreTransaction(userId, id),
 );
 
-const get = defineAction(idSchema, (userId, { id }) =>
-  getTransaction(userId, id),
+const get = defineAction(
+  idSchema,
+  (userId, { id }) => getTransaction(userId, id),
+  { refresh: false },
 );
 
 export async function createTxAction(input: z.input<typeof txInputSchema>) {

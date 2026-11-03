@@ -1,10 +1,12 @@
 'use client';
 
+import type { FormEvent } from 'react';
+
 import { Button, Spinner } from '@heroui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import type { ActionErrorCode } from '@/lib/action-result';
@@ -64,6 +66,8 @@ export function TxSheetHost() {
 
   const [loadedId, setLoadedId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  if (tx === null && loadedId !== null) setLoadedId(null);
+  const submitting = useRef(false);
   const loading = tx !== null && tx !== 'new' && loadedId !== tx;
 
   const close = () => {
@@ -122,7 +126,23 @@ export function TxSheetHost() {
     };
   }, [tx, draft, form]);
 
-  const onSubmit = form.handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async (values) => {
+    await save(values);
+  });
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    // Enter in a field bypasses the disabled footer button; state lags a render, so use a ref.
+    if (submitting.current) {
+      e.preventDefault();
+      return;
+    }
+    submitting.current = true;
+    void submit(e).finally(() => {
+      submitting.current = false;
+    });
+  };
+
+  const save = async (values: TxInput) => {
     if (editId) {
       const res = await updateTxAction({ id: editId, ...values });
       if (!res.ok) return showError(res.error);
@@ -141,7 +161,7 @@ export function TxSheetHost() {
         if (!undo.ok) showError(undo.error);
       },
     });
-  });
+  };
 
   const onDelete = async () => {
     if (!editId) return;
