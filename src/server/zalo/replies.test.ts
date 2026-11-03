@@ -35,7 +35,7 @@ function tx(
 describe('replies', () => {
   it('formats the confirm reply', () => {
     expect(confirmReply(tx(), TODAY)).toBe(
-      '<p>✓ Ăn uống › Ăn sáng · <b>−45.000 ₫</b> · Hôm nay</p><p>Gõ <b>/undo</b> để hủy</p>',
+      '<p><b style="color:#15a85f">✓</b> <b>Ăn uống › Ăn sáng</b></p><p><b style="color:#db342e">−45.000 ₫</b> · Hôm nay</p><p><i>Gõ <b>/undo</b> để hủy</i></p>',
     );
   });
 
@@ -49,19 +49,19 @@ describe('replies', () => {
       { note: 'tháng 10' },
     );
     expect(html).toBe(
-      '<p>✓ Lương · <b>+45.000 ₫</b> · Hôm qua</p><p><i>tháng 10</i></p><p>Gõ <b>/undo</b> để hủy</p>',
+      '<p><b style="color:#15a85f">✓</b> <b>Lương</b></p><p><b style="color:#15a85f">+45.000 ₫</b> · Hôm qua</p><p><i>tháng 10</i></p><p><i>Gõ <b>/undo</b> để hủy</i></p>',
     );
   });
 
   it('formats undone and linked replies', () => {
     expect(undoneReply(tx({ note: 'phở' }))).toBe(
-      '<p>↩ Đã hủy: phở · <b>−45.000 ₫</b></p>',
+      '<p><b style="color:#f27806">↩ Đã hủy</b>: phở · <s>−45.000 ₫</s></p>',
     );
     expect(undoneReply(tx())).toBe(
-      '<p>↩ Đã hủy: Ăn sáng · <b>−45.000 ₫</b></p>',
+      '<p><b style="color:#f27806">↩ Đã hủy</b>: Ăn sáng · <s>−45.000 ₫</s></p>',
     );
     expect(linkedReply('Thức')).toBe(
-      '<p>✓ Đã liên kết với Sổ Chi của <b>Thức</b>.</p><p>Thử nhắn: <b>ăn phở 45k</b></p>',
+      '<p><b style="color:#15a85f">✓ Đã liên kết</b> với Sổ Chi của <b>Thức</b></p><p>Thử nhắn: <b>ăn phở 45k</b></p>',
     );
   });
 
