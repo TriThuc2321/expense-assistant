@@ -12,6 +12,7 @@ import {
 import { quickParseToInput } from '@/server/services/quick-entry';
 import {
   createTransaction,
+  createTransactions,
   undoLatestZaloTransaction,
 } from '@/server/services/transactions';
 import {
@@ -24,7 +25,13 @@ import type { ZaloUpdate } from './update';
 import { sendMessage } from './client';
 import { downloadImage } from './download';
 import { handleZaloUpdate } from './handler';
-import { REPLY, confirmReply, linkedReply, undoneReply } from './replies';
+import {
+  REPLY,
+  confirmManyReply,
+  confirmReply,
+  linkedReply,
+  undoneReply,
+} from './replies';
 
 vi.mock('./client', () => ({ sendMessage: vi.fn() }));
 vi.mock('./download', () => ({ downloadImage: vi.fn() }));
@@ -34,6 +41,7 @@ vi.mock('@/server/services/zalo-link', () => ({
 }));
 vi.mock('@/server/services/transactions', () => ({
   createTransaction: vi.fn(),
+  createTransactions: vi.fn(),
   undoLatestZaloTransaction: vi.fn(),
 }));
 vi.mock('@/server/services/quick-entry', () => ({
@@ -118,6 +126,9 @@ beforeEach(() => {
   vi.mocked(createTransaction).mockImplementation(
     async (_userId, input, _source, receiptKey) => view(input, receiptKey),
   );
+  vi.mocked(createTransactions).mockImplementation(async (_userId, inputs) =>
+    inputs.map((input, i) => ({ ...view(input), id: `tx-${i + 1}` })),
+  );
   vi.mocked(listCategories).mockResolvedValue(CATEGORIES);
   vi.mocked(resolveCategorySlug).mockResolvedValue('id:shop.goods');
   vi.mocked(downloadImage).mockResolvedValue({
@@ -190,15 +201,15 @@ describe('handleZaloUpdate', () => {
       note: 'Ăn phở',
       date: TODAY,
     });
-    vi.mocked(undoLatestZaloTransaction).mockResolvedValueOnce(tx);
-    vi.mocked(undoLatestZaloTransaction).mockResolvedValueOnce(null);
+    vi.mocked(undoLatestZaloTransaction).mockResolvedValueOnce([tx]);
+    vi.mocked(undoLatestZaloTransaction).mockResolvedValueOnce([]);
 
     await handleZaloUpdate(update({ text: '/undo' }), NOW);
     await handleZaloUpdate(update({ text: '/undo' }), NOW);
 
     expect(undoLatestZaloTransaction).toHaveBeenCalledWith(USER, NOW);
     expect(sent()).toEqual([
-      ['C', undoneReply(tx)],
+      ['C', undoneReply([tx])],
       ['C', REPLY.nothingToUndo],
     ]);
   });
@@ -311,11 +322,15 @@ describe('handleZaloUpdate', () => {
   it('creates a receipt tx without storing the image', async () => {
     vi.mocked(parseReceipt).mockResolvedValue({
       isReceipt: true,
-      total: 85000,
-      store: 'Phở Thìn',
-      date: '2026-11-01',
-      categoryId: 'cat-food',
-      note: 'Phở bò, trà đá ×2',
+      items: [
+        {
+          amount: 85000,
+          store: 'Phở Thìn',
+          date: '2026-11-01',
+          categoryId: 'cat-food',
+          note: 'Phở bò, trà đá ×2',
+        },
+      ],
     });
 
     await handleZaloUpdate(
@@ -341,11 +356,11 @@ describe('handleZaloUpdate', () => {
       note: 'Phở bò, trà đá ×2',
       date: '2026-11-01',
     };
-    expect(createTransaction).toHaveBeenCalledWith(USER, input, 'zalo');
+    expect(createTransactions).toHaveBeenCalledWith(USER, [input], 'zalo');
     expect(sent()).toEqual([
       [
         'C',
-        confirmReply(view(input), TODAY, {
+        confirmReply({ ...view(input), id: 'tx-1' }, TODAY, {
           note: 'Phở bò, trà đá ×2',
         }),
       ],
@@ -355,11 +370,15 @@ describe('handleZaloUpdate', () => {
   it('files a receipt without a category under shop.goods', async () => {
     vi.mocked(parseReceipt).mockResolvedValue({
       isReceipt: true,
-      total: 30000,
-      store: null,
-      date: TODAY,
-      categoryId: null,
-      note: null,
+      items: [
+        {
+          amount: 30000,
+          store: null,
+          date: TODAY,
+          categoryId: null,
+          note: null,
+        },
+      ],
     });
 
     await handleZaloUpdate(
@@ -368,16 +387,18 @@ describe('handleZaloUpdate', () => {
     );
 
     expect(resolveCategorySlug).toHaveBeenCalledWith(USER, 'shop.goods', 'out');
-    expect(createTransaction).toHaveBeenCalledWith(
+    expect(createTransactions).toHaveBeenCalledWith(
       USER,
-      {
-        type: 'out',
-        amount: 30000,
-        categoryId: 'id:shop.goods',
-        store: null,
-        note: null,
-        date: TODAY,
-      },
+      [
+        {
+          type: 'out',
+          amount: 30000,
+          categoryId: 'id:shop.goods',
+          store: null,
+          note: null,
+          date: TODAY,
+        },
+      ],
       'zalo',
     );
   });
@@ -385,19 +406,19 @@ describe('handleZaloUpdate', () => {
   it('replies noTotal when the photo is not a receipt', async () => {
     vi.mocked(parseReceipt).mockResolvedValueOnce({
       isReceipt: false,
-      total: null,
-      store: null,
-      date: TODAY,
-      categoryId: null,
-      note: null,
+      items: [],
     });
     vi.mocked(parseReceipt).mockResolvedValueOnce({
       isReceipt: true,
-      total: 0.4,
-      store: null,
-      date: TODAY,
-      categoryId: 'cat-food',
-      note: null,
+      items: [
+        {
+          amount: 0.4,
+          store: null,
+          date: TODAY,
+          categoryId: 'cat-food',
+          note: null,
+        },
+      ],
     });
     vi.mocked(parseReceipt).mockResolvedValueOnce(null);
 
@@ -408,12 +429,113 @@ describe('handleZaloUpdate', () => {
       );
     }
 
-    expect(createTransaction).not.toHaveBeenCalled();
+    expect(createTransactions).not.toHaveBeenCalled();
     expect(sent()).toEqual([
       ['C', REPLY.noTotal],
       ['C', REPLY.noTotal],
       ['C', REPLY.noTotal],
     ]);
+  });
+
+  it('records every transfer in a multi-transfer screenshot', async () => {
+    vi.mocked(parseReceipt).mockResolvedValue({
+      isReceipt: true,
+      items: [
+        {
+          amount: 150000,
+          store: 'Nguyễn Văn A',
+          date: '2026-11-02',
+          categoryId: 'cat-food',
+          note: 'tien com',
+        },
+        {
+          amount: 500000,
+          store: 'Trần Thị B',
+          date: '2026-11-02',
+          categoryId: 'cat-refund',
+          note: 'tra tien',
+        },
+        {
+          amount: 0,
+          store: 'Số dư',
+          date: TODAY,
+          categoryId: null,
+          note: null,
+        },
+        {
+          amount: 20000.6,
+          store: null,
+          date: TODAY,
+          categoryId: null,
+          note: 'gửi xe',
+        },
+      ],
+    });
+
+    await handleZaloUpdate(
+      update({ event: 'image', text: null, photoUrl: 'https://x/r.jpg' }),
+      NOW,
+    );
+
+    const inputs: TxInput[] = [
+      {
+        type: 'out',
+        amount: 150000,
+        categoryId: 'cat-food',
+        store: 'Nguyễn Văn A',
+        note: 'tien com',
+        date: '2026-11-02',
+      },
+      {
+        type: 'in',
+        amount: 500000,
+        categoryId: 'cat-refund',
+        store: 'Trần Thị B',
+        note: 'tra tien',
+        date: '2026-11-02',
+      },
+      {
+        type: 'out',
+        amount: 20001,
+        categoryId: 'id:shop.goods',
+        store: null,
+        note: 'gửi xe',
+        date: TODAY,
+      },
+    ];
+    expect(createTransactions).toHaveBeenCalledTimes(1);
+    expect(createTransactions).toHaveBeenCalledWith(USER, inputs, 'zalo');
+    const views = inputs.map((input, i) => ({
+      ...view(input),
+      id: `tx-${i + 1}`,
+    }));
+    expect(sent()).toEqual([['C', confirmManyReply(views, TODAY)]]);
+  });
+
+  it('undoes every transaction from the latest image', async () => {
+    const txs = [
+      view({
+        type: 'out',
+        amount: 150000,
+        categoryId: 'cat-food',
+        store: 'A',
+        note: null,
+        date: TODAY,
+      }),
+      view({
+        type: 'in',
+        amount: 500000,
+        categoryId: 'cat-refund',
+        store: 'B',
+        note: null,
+        date: TODAY,
+      }),
+    ];
+    vi.mocked(undoLatestZaloTransaction).mockResolvedValue(txs);
+
+    await handleZaloUpdate(update({ text: '/undo' }), NOW);
+
+    expect(sent()).toEqual([['C', undoneReply(txs)]]);
   });
 
   it('skips Claude when the user has no categories', async () => {
@@ -432,11 +554,15 @@ describe('handleZaloUpdate', () => {
     const longNote = 'n'.repeat(300);
     vi.mocked(parseReceipt).mockResolvedValue({
       isReceipt: true,
-      total: 45000.4,
-      store: `  ${'s'.repeat(250)}  `,
-      date: TODAY,
-      categoryId: 'cat-food',
-      note: longNote,
+      items: [
+        {
+          amount: 45000.4,
+          store: `  ${'s'.repeat(250)}  `,
+          date: TODAY,
+          categoryId: 'cat-food',
+          note: longNote,
+        },
+      ],
     });
 
     await handleZaloUpdate(
@@ -452,11 +578,11 @@ describe('handleZaloUpdate', () => {
       note: 'n'.repeat(200),
       date: TODAY,
     };
-    expect(createTransaction).toHaveBeenCalledWith(USER, input, 'zalo');
+    expect(createTransactions).toHaveBeenCalledWith(USER, [input], 'zalo');
     expect(sent()).toEqual([
       [
         'C',
-        confirmReply(view(input), TODAY, {
+        confirmReply({ ...view(input), id: 'tx-1' }, TODAY, {
           note: 'n'.repeat(200),
         }),
       ],
@@ -509,13 +635,17 @@ describe('handleZaloUpdate', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(parseReceipt).mockResolvedValue({
       isReceipt: true,
-      total: 85000,
-      store: null,
-      date: TODAY,
-      categoryId: 'cat-food',
-      note: null,
+      items: [
+        {
+          amount: 85000,
+          store: null,
+          date: TODAY,
+          categoryId: 'cat-food',
+          note: null,
+        },
+      ],
     });
-    vi.mocked(createTransaction).mockRejectedValue(
+    vi.mocked(createTransactions).mockRejectedValue(
       new Error('read-back failed'),
     );
 
@@ -524,7 +654,7 @@ describe('handleZaloUpdate', () => {
       NOW,
     );
 
-    expect(createTransaction).toHaveBeenCalled();
+    expect(createTransactions).toHaveBeenCalled();
     expect(sent()).toEqual([['C', REPLY.error]]);
     errorSpy.mockRestore();
   });
