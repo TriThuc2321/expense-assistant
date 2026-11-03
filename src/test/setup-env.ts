@@ -20,4 +20,4 @@ for (const [key, value] of Object.entries(defaults)) {
 
 process.env.DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
-  'postgres://postgres:postgres@localhost:5432/expense_test';
+  'postgres://postgres:postgres@localhost:5433/expense_test';
