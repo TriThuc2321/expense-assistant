@@ -2,14 +2,21 @@ import type { Metadata } from 'next';
 
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
-import { Inter } from 'next/font/google';
+import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
 
 import './globals.css';
 import { ThemeProviders } from '@/providers';
 
-const inter = Inter({
-  variable: '--font-inter',
+const spaceGrotesk = Space_Grotesk({
+  variable: '--font-space-grotesk',
   subsets: ['latin', 'vietnamese'],
+  weight: ['400', '500', '600'],
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: '--font-plex-mono',
+  subsets: ['latin', 'vietnamese'],
+  weight: ['400', '500', '600'],
 });
 
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
@@ -19,9 +26,9 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${inter.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${plexMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="bg-app text-body flex min-h-full flex-col font-sans">
         <NextIntlClientProvider>
           <ThemeProviders>{children}</ThemeProviders>
         </NextIntlClientProvider>
@@ -32,16 +39,16 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | TH Expense',
-    default: 'TH Expense',
+    template: '%s | Sổ Chi',
+    default: 'Sổ Chi',
   },
-  description: 'TH Expense',
+  description: 'Sổ Chi',
   openGraph: {
     title: {
-      template: '%s | TH Expense',
-      default: 'TH Expense',
+      template: '%s | Sổ Chi',
+      default: 'Sổ Chi',
     },
-    description: 'TH Expense Dashboard',
+    description: 'Sổ Chi',
     images: ['/images/logo.png'],
   },
 };

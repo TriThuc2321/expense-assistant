@@ -1,0 +1,226 @@
+/* TH color system — base ramps then semantic aliases.
+   Anchor: --ink-900 (#13182A) sampled from the TH mark. Accent: --blue-500. */
+:root {
+  /* Ink / neutral ramp */
+  --ink-1000: #05070f;
+  --ink-950: #0b0f1c;
+  --ink-900: #13182a;
+  --ink-800: #1b2237;
+  --ink-700: #262f49;
+  --ink-600: #3a4560;
+  --ink-500: #55607d;
+  --ink-400: #7c8699;
+  --ink-300: #a8b0bf;
+  --ink-200: #cbd1db;
+  --ink-100: #e4e8ee;
+  --ink-75: #eef1f5;
+  --ink-50: #f4f6f9;
+  --ink-25: #fafbfc;
+  --ink-0: #ffffff;
+  /* Accent — TH blue */
+  --blue-50: #edf2fe;
+  --blue-100: #dbe4fd;
+  --blue-200: #b8cafb;
+  --blue-300: #8da9f8;
+  --blue-400: #5f87f7;
+  --blue-500: #3b6bf5;
+  --blue-600: #2a54d6;
+  --blue-700: #2143a8;
+  --blue-800: #1b3480;
+  --blue-900: #15265c;
+  /* Semantics */
+  --green-50: #e9f8ef;
+  --green-100: #cff0dd;
+  --green-500: #16a34a;
+  --green-600: #12833c;
+  --green-700: #0d6430;
+  --amber-50: #fdf4e7;
+  --amber-100: #fae7c4;
+  --amber-500: #d9840b;
+  --amber-600: #b36a06;
+  --amber-700: #8a5205;
+  --red-50: #fdedec;
+  --red-100: #fad8d6;
+  --red-500: #dc2626;
+  --red-600: #bb1b1b;
+  --red-700: #951616;
+  /* Data-viz sequence (charts, tags, avatars) */
+  --ocean-500: #06afc9;
+  --ocean-600: #0597ae;
+  --ocean-700: #047e91;
+  /* Gradient — Ocean (blue → cyan). Raw ramps; components read --accent-fill* below */
+  --gradient-ocean: linear-gradient(
+    120deg,
+    var(--blue-500) 0%,
+    #1a8fe0 55%,
+    var(--ocean-500) 100%
+  );
+  --gradient-ocean-hover: linear-gradient(
+    120deg,
+    var(--blue-600) 0%,
+    #1580cc 55%,
+    var(--ocean-600) 100%
+  );
+  --gradient-ocean-active: linear-gradient(
+    120deg,
+    var(--blue-700) 0%,
+    #106daf 55%,
+    var(--ocean-700) 100%
+  );
+  --gradient-ocean-glow:
+    radial-gradient(
+      40% 50% at 20% 30%,
+      color-mix(in oklab, var(--blue-500) 20%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      35% 45% at 80% 20%,
+      color-mix(in oklab, var(--ocean-500) 18%, transparent),
+      transparent 70%
+    );
+  --viz-1: #1438b0;
+  --viz-2: #00c2d1;
+  --viz-3: #8b5cff;
+  --viz-4: #ffa41b;
+  --viz-5: #ff4f8b;
+  --viz-6: #22c55e;
+}
+
+/* ---- Light theme (default) ---- */
+:root {
+  --bg-base: var(--ink-50);
+  --bg-canvas: var(--ink-0);
+  --bg-sunken: var(--ink-75);
+  --surface-card: var(--ink-0);
+  --surface-raised: var(--ink-0);
+  --surface-inset: var(--ink-50);
+  --surface-overlay: var(--ink-0);
+  --surface-inverse: var(--ink-900);
+  --surface-hover: var(--ink-50);
+  --surface-active: var(--ink-100);
+  --surface-selected: var(--blue-50);
+  --text-strong: var(--ink-900);
+  --text-body: var(--ink-700);
+  --text-muted: var(--ink-500);
+  --text-subtle: var(--ink-400);
+  --text-inverse: var(--ink-0);
+  --text-link: var(--blue-600);
+  --text-link-hover: var(--blue-700);
+  --text-on-accent: var(--ink-0);
+  --border-subtle: var(--ink-100);
+  --border-default: var(--ink-200);
+  --border-strong: var(--ink-300);
+  --border-inverse: var(--ink-700);
+  --border-focus: var(--blue-500);
+  --accent-solid: var(--blue-500);
+  --accent-solid-hover: var(--blue-600);
+  --accent-solid-active: var(--blue-700);
+  --accent-soft: var(--blue-50);
+  --accent-soft-hover: var(--blue-100);
+  --accent-text: var(--blue-600);
+  --accent-border: var(--blue-200);
+  --success-solid: var(--green-500);
+  --success-soft: var(--green-50);
+  --success-text: var(--green-700);
+  --success-border: var(--green-100);
+  --warning-solid: var(--amber-500);
+  --warning-soft: var(--amber-50);
+  --warning-text: var(--amber-700);
+  --warning-border: var(--amber-100);
+  --danger-solid: var(--red-500);
+  --danger-solid-hover: var(--red-600);
+  --danger-soft: var(--red-50);
+  --danger-text: var(--red-700);
+  --danger-border: var(--red-100);
+  --focus-ring: 0 0 0 3px color-mix(in oklab, var(--blue-500) 32%, transparent);
+  --scrim: color-mix(in oklab, var(--ink-950) 45%, transparent);
+}
+
+/* ---- Dark theme ---- */
+[data-theme='dark'] {
+  --bg-base: var(--ink-1000);
+  --bg-canvas: var(--ink-950);
+  --bg-sunken: #03050b;
+  --surface-card: var(--ink-900);
+  --surface-raised: var(--ink-800);
+  --surface-inset: var(--ink-950);
+  --surface-overlay: var(--ink-800);
+  --surface-inverse: var(--ink-0);
+  --surface-hover: var(--ink-800);
+  --surface-active: var(--ink-700);
+  --surface-selected: color-mix(in oklab, var(--blue-500) 18%, var(--ink-900));
+  --text-strong: #f7f9fc;
+  --text-body: var(--ink-200);
+  --text-muted: var(--ink-400);
+  --text-subtle: var(--ink-500);
+  --text-inverse: var(--ink-900);
+  --text-link: var(--blue-300);
+  --text-link-hover: var(--blue-200);
+  --text-on-accent: var(--ink-0);
+  --border-subtle: var(--ink-800);
+  --border-default: var(--ink-700);
+  --border-strong: var(--ink-600);
+  --border-inverse: var(--ink-200);
+  --border-focus: var(--blue-400);
+  --accent-solid: var(--blue-500);
+  --accent-solid-hover: var(--blue-400);
+  --accent-solid-active: var(--blue-600);
+  --accent-soft: color-mix(in oklab, var(--blue-500) 16%, var(--ink-900));
+  --accent-soft-hover: color-mix(in oklab, var(--blue-500) 26%, var(--ink-900));
+  --accent-text: var(--blue-300);
+  --accent-border: color-mix(in oklab, var(--blue-500) 40%, var(--ink-900));
+  --success-solid: var(--green-500);
+  --success-soft: color-mix(in oklab, var(--green-500) 16%, var(--ink-900));
+  --success-text: #5fd98c;
+  --success-border: color-mix(in oklab, var(--green-500) 34%, var(--ink-900));
+  --warning-solid: var(--amber-500);
+  --warning-soft: color-mix(in oklab, var(--amber-500) 16%, var(--ink-900));
+  --warning-text: #f0b65c;
+  --warning-border: color-mix(in oklab, var(--amber-500) 34%, var(--ink-900));
+  --danger-solid: var(--red-500);
+  --danger-solid-hover: #e84343;
+  --danger-soft: color-mix(in oklab, var(--red-500) 16%, var(--ink-900));
+  --danger-text: #f58b8b;
+  --danger-border: color-mix(in oklab, var(--red-500) 34%, var(--ink-900));
+  --focus-ring: 0 0 0 3px color-mix(in oklab, var(--blue-400) 40%, transparent);
+  --scrim: color-mix(in oklab, #000 62%, transparent);
+}
+
+/* ---- Accent fill: flat by default, Ocean gradient when <html data-gradient="on"> ---- */
+:root {
+  --accent-fill: var(--accent-solid);
+  --accent-fill-hover: var(--accent-solid-hover);
+  --accent-fill-active: var(--accent-solid-active);
+  --accent-text-fill: var(--accent-text);
+  --hero-glow: none; /* @kind other */
+}
+[data-gradient='on'] {
+  --accent-fill: var(--gradient-ocean);
+  --accent-fill-hover: var(--gradient-ocean-hover);
+  --accent-fill-active: var(--gradient-ocean-active);
+  --accent-text-fill: linear-gradient(
+    100deg,
+    var(--blue-600),
+    var(--ocean-600)
+  );
+  --hero-glow: var(--gradient-ocean-glow);
+}
+[data-gradient='on'][data-theme='dark'],
+[data-theme='dark'] [data-gradient='on'],
+[data-gradient='on'] [data-theme='dark'] {
+  --accent-text-fill: linear-gradient(
+    100deg,
+    var(--blue-300),
+    var(--ocean-500)
+  );
+}
+
+:root {
+  --cat-food: var(--viz-1);
+  --cat-home: var(--viz-2);
+  --cat-move: var(--viz-3);
+  --cat-shop: var(--viz-4);
+  --cat-fun: var(--viz-5);
+  --cat-health: var(--viz-6);
+  --cat-income: var(--success-solid);
+}

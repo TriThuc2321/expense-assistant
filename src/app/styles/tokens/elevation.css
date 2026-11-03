@@ -1,0 +1,32 @@
+:root {
+  /* Shadows are cool-tinted with the ink hue, never neutral black */
+  --elevation-xs: 0 1px 2px color-mix(in oklab, var(--ink-900) 6%, transparent);
+  --elevation-sm:
+    0 1px 2px color-mix(in oklab, var(--ink-900) 5%, transparent),
+    0 2px 6px color-mix(in oklab, var(--ink-900) 5%, transparent);
+  --elevation-md:
+    0 2px 4px color-mix(in oklab, var(--ink-900) 4%, transparent),
+    0 8px 20px color-mix(in oklab, var(--ink-900) 8%, transparent);
+  --elevation-lg:
+    0 4px 8px color-mix(in oklab, var(--ink-900) 5%, transparent),
+    0 18px 40px color-mix(in oklab, var(--ink-900) 11%, transparent);
+  --elevation-xl:
+    0 8px 16px color-mix(in oklab, var(--ink-900) 6%, transparent),
+    0 32px 72px color-mix(in oklab, var(--ink-900) 14%, transparent);
+  --elevation-inset: inset 0 1px 0
+    color-mix(in oklab, var(--ink-0) 60%, transparent);
+  --elevation-accent: 0 6px 18px
+    color-mix(in oklab, var(--blue-500) 30%, transparent);
+  --blur-glass: saturate(1.4) blur(14px); /* @kind other */
+}
+[data-theme='dark'] {
+  --elevation-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --elevation-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
+  --elevation-md: 0 2px 4px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.5);
+  --elevation-lg: 0 4px 8px rgba(0, 0, 0, 0.45), 0 18px 40px rgba(0, 0, 0, 0.6);
+  --elevation-xl: 0 8px 16px rgba(0, 0, 0, 0.5), 0 32px 72px rgba(0, 0, 0, 0.7);
+  --elevation-inset: inset 0 1px 0
+    color-mix(in oklab, var(--ink-0) 8%, transparent);
+  --elevation-accent: 0 6px 18px
+    color-mix(in oklab, var(--blue-500) 40%, transparent);
+}

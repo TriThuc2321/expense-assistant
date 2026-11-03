@@ -1,0 +1,27 @@
+:root {
+  --duration-instant: 80ms; /* @kind other */
+  --duration-fast: 140ms; /* @kind other */
+  --duration-normal: 220ms; /* @kind other */
+  --duration-slow: 340ms; /* @kind other */
+  --duration-slower: 600ms; /* @kind other */
+  --ease-standard: cubic-bezier(0.2, 0, 0.2, 1); /* @kind other */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* @kind other */
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1); /* @kind other */
+  --transition-control:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard); /* @kind other */
+  --press-scale: 0.97; /* @kind other */
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms; /* @kind other */
+    --duration-fast: 0ms; /* @kind other */
+    --duration-normal: 0ms; /* @kind other */
+    --duration-slow: 0ms; /* @kind other */
+    --duration-slower: 0ms; /* @kind other */
+  }
+}
