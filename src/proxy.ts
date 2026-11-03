@@ -11,15 +11,12 @@ export function isPublicPath(pathname: string): boolean {
   );
 }
 
-// Cookie presence only (no DB lookup): pages still enforce the real session via requireSession().
+// Cookie presence only (no DB lookup): pages still enforce the real session
+// via requireSession(). Signed-in users are not bounced off /login here,
+// because a stale cookie would then loop between /login and /.
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const hasSessionCookie = getSessionCookie(request) !== null;
-
-  if (pathname === LOGIN_PATH && hasSessionCookie) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-  if (isPublicPath(pathname) || hasSessionCookie) return NextResponse.next();
+  if (isPublicPath(request.nextUrl.pathname)) return NextResponse.next();
+  if (getSessionCookie(request)) return NextResponse.next();
 
   return NextResponse.redirect(new URL(LOGIN_PATH, request.url));
 }

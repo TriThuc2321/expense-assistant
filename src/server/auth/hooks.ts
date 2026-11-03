@@ -61,8 +61,8 @@ export function createDatabaseHooks(deps: DatabaseHookDeps): AppDatabaseHooks {
     },
     session: {
       create: {
-        // Re-checked per sign-in so removing an email from ALLOWED_EMAILS
-        // locks out users who already have an account.
+        // Existing users can't sign in again once removed from ALLOWED_EMAILS;
+        // their live sessions are rejected separately by getAllowedSession().
         before: async (session) => {
           const email = await deps.findUserEmail(session.userId);
           if (!isEmailAllowed(email, deps.allowed)) throw notInvited();
