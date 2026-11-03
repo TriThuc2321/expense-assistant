@@ -1,6 +1,8 @@
 import 'server-only';
 import { z } from 'zod';
 
+import { parseAllowedEmails } from '@/server/auth/allowlist';
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
@@ -10,8 +12,9 @@ const envSchema = z.object({
   DATABASE_URL: z.url(),
 
   BETTER_AUTH_SECRET: z.string().min(32),
-  GOOGLE_CLIENT_ID: z.string().min(1).optional(),
-  GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
+  ALLOWED_EMAILS: z.string().min(1).transform(parseAllowedEmails),
 
   ZALO_BOT_TOKEN: z.string().min(1),
   // Zalo requires the webhook secret to be 8-256 chars.
