@@ -7,7 +7,8 @@
     "appName": "Sổ Chi",
     "close": "Đóng",
     "undo": "Hoàn tác",
-    "welcome": "Chào mừng trở lại"
+    "welcome": "Chào mừng trở lại",
+    "cancel": "Hủy"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -24,5 +25,23 @@
     "errors": {
       "google_login_failed": "Đăng nhập Google thất bại. Vui lòng thử lại."
     }
+  },
+  "nav": {
+    "home": "Tổng quan",
+    "transactions": "Giao dịch",
+    "categories": "Danh mục",
+    "settings": "Cài đặt",
+    "addTransaction": "Thêm giao dịch"
+  },
+  "tx": {
+    "addTitle": "Thêm giao dịch",
+    "editTitle": "Sửa giao dịch",
+    "added": "Đã thêm giao dịch"
+  },
+  "home": {
+    "greeting": "Chào {name}"
+  },
+  "settings": {
+    "logout": "Đăng xuất"
   }
 }

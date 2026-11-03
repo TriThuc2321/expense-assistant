@@ -45,7 +45,7 @@ export function ResponsiveSheet({
       >
         <Modal.Container>
           <Modal.Dialog className="rounded-modal w-full max-w-[560px]">
-            <Modal.Header className="flex items-center justify-between gap-3">
+            <Modal.Header className="flex-row items-center justify-between gap-3">
               <Modal.Heading className="type-h4">{title}</Modal.Heading>
               {closeButton}
             </Modal.Header>
@@ -68,7 +68,7 @@ export function ResponsiveSheet({
       <Drawer.Content placement="bottom">
         <Drawer.Dialog className="rounded-t-sheet w-full rounded-b-none pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <Drawer.Handle />
-          <Drawer.Header className="flex items-center justify-between gap-3">
+          <Drawer.Header className="flex-row items-center justify-between gap-3">
             <Drawer.Heading className="type-h4">{title}</Drawer.Heading>
             {closeButton}
           </Drawer.Header>

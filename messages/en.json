@@ -7,7 +7,8 @@
     "appName": "Sổ Chi",
     "close": "Close",
     "undo": "Undo",
-    "welcome": "Welcome back"
+    "welcome": "Welcome back",
+    "cancel": "Cancel"
   },
   "auth": {
     "login": "Login",
@@ -24,5 +25,23 @@
     "errors": {
       "google_login_failed": "Google sign-in failed. Please try again."
     }
+  },
+  "nav": {
+    "home": "Overview",
+    "transactions": "Transactions",
+    "categories": "Categories",
+    "settings": "Settings",
+    "addTransaction": "Add transaction"
+  },
+  "tx": {
+    "addTitle": "Add transaction",
+    "editTitle": "Edit transaction",
+    "added": "Transaction added"
+  },
+  "home": {
+    "greeting": "Hi {name}"
+  },
+  "settings": {
+    "logout": "Sign out"
   }
 }
