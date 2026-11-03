@@ -13,16 +13,13 @@
   "auth": {
     "login": "Login",
     "logout": "Logout",
-    "email": "Email",
-    "password": "Password",
-    "forgotPassword": "Forgot password?",
-    "loginTitle": "Sign in to your account",
-    "loginButton": "Sign in",
-    "welcomeBack": "Welcome back",
-    "welcomeSubtitle": "welcomeSubtitle",
+    "overline": "Personal & group expense tracking",
+    "headline": "Know where your money goes, one entry at a time.",
+    "subtitle": "Type “ăn phở 45k” and it’s logged. Ask “how much did I spend on coffee this month?” and get an answer.",
     "continueWithGoogle": "Continue with Google",
-    "loginFooter": "loginFooter",
+    "footer": "Your data syncs between phone and computer.",
     "errors": {
+      "not_invited": "This email hasn’t been invited to Sổ Chi",
       "google_login_failed": "Google sign-in failed. Please try again."
     }
   },

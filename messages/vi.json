@@ -13,16 +13,13 @@
   "auth": {
     "login": "Đăng nhập",
     "logout": "Đăng xuất",
-    "email": "Email",
-    "password": "Mật khẩu",
-    "forgotPassword": "Quên mật khẩu?",
-    "loginTitle": "Đăng nhập vào tài khoản",
-    "loginButton": "Đăng nhập",
-    "welcomeBack": "Chào mừng trở lại",
-    "welcomeSubtitle": "welcomeSubtitle",
+    "overline": "Quản lý chi tiêu cá nhân và nhóm",
+    "headline": "Biết tiền đi đâu, từng khoản một.",
+    "subtitle": "Gõ “ăn phở 45k” là có giao dịch. Hỏi “tháng này tiêu bao nhiêu cho cà phê?” là có câu trả lời.",
     "continueWithGoogle": "Tiếp tục với Google",
-    "loginFooter": "loginFooter",
+    "footer": "Dữ liệu đồng bộ giữa điện thoại và máy tính.",
     "errors": {
+      "not_invited": "Email này chưa được mời dùng Sổ Chi",
       "google_login_failed": "Đăng nhập Google thất bại. Vui lòng thử lại."
     }
   },
