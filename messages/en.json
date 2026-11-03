@@ -36,7 +36,20 @@
   "tx": {
     "addTitle": "Add transaction",
     "editTitle": "Edit transaction",
-    "added": "Transaction added"
+    "added": "Transaction added",
+    "expense": "Expense",
+    "income": "Income",
+    "amount": "Amount",
+    "category": "Category",
+    "note": "Note",
+    "store": "Store",
+    "date": "Date",
+    "add": "Add",
+    "save": "Save",
+    "delete": "Delete",
+    "saved": "Changes saved",
+    "deleted": "Transaction deleted",
+    "type": "Transaction type"
   },
   "home": {
     "greeting": "Hi {name}"

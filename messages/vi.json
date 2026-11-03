@@ -36,7 +36,20 @@
   "tx": {
     "addTitle": "Thêm giao dịch",
     "editTitle": "Sửa giao dịch",
-    "added": "Đã thêm giao dịch"
+    "added": "Đã thêm giao dịch",
+    "expense": "Khoản chi",
+    "income": "Khoản thu",
+    "amount": "Số tiền",
+    "category": "Danh mục",
+    "note": "Ghi chú",
+    "store": "Cửa hàng",
+    "date": "Ngày",
+    "add": "Thêm",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "saved": "Đã lưu thay đổi",
+    "deleted": "Đã xóa giao dịch",
+    "type": "Loại giao dịch"
   },
   "home": {
     "greeting": "Chào {name}"

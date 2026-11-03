@@ -6,10 +6,11 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { useTxSheet } from '@/features/tx-sheet/tx-sheet-provider';
+
 import type { NavItem } from './nav';
 
 import { NAV_ITEMS, isNavActive } from './nav';
-import { useOpenNewTx } from './tx-sheet-host';
 
 function Tab({ item, pathname }: { item: NavItem; pathname: string }) {
   const t = useTranslations('nav');
@@ -36,7 +37,7 @@ function Tab({ item, pathname }: { item: NavItem; pathname: string }) {
 export function TabBar() {
   const t = useTranslations('nav');
   const pathname = usePathname();
-  const openNewTx = useOpenNewTx();
+  const { openNew } = useTxSheet();
   const left = NAV_ITEMS.slice(0, 2);
   const right = NAV_ITEMS.slice(2);
 
@@ -49,7 +50,7 @@ export function TabBar() {
         <Button
           isIconOnly
           aria-label={t('addTransaction')}
-          onPress={openNewTx}
+          onPress={() => openNew()}
           className="size-[46px] rounded-full"
         >
           <Plus size={22} strokeWidth={1.75} />

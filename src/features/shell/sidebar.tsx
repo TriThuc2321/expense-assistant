@@ -9,16 +9,16 @@ import { usePathname } from 'next/navigation';
 import type { AppSession } from '@/server/auth/session';
 
 import { SwitchLocale, ThemeSwitch } from '@/components/layouts';
+import { useTxSheet } from '@/features/tx-sheet/tx-sheet-provider';
 
 import { LogoTile } from './logo-tile';
 import { NAV_ITEMS, isNavActive } from './nav';
-import { useOpenNewTx } from './tx-sheet-host';
 import { UserAvatar } from './user-avatar';
 
 export function Sidebar({ user }: { user: AppSession['user'] }) {
   const t = useTranslations();
   const pathname = usePathname();
-  const openNewTx = useOpenNewTx();
+  const { openNew } = useTxSheet();
 
   return (
     <aside className="rounded-panel bg-canvas border-subtle wide:flex sticky top-3 m-3 hidden h-[calc(100dvh-24px)] w-[248px] shrink-0 flex-col gap-[18px] overflow-hidden border px-3.5 py-5 shadow-sm">
@@ -33,7 +33,7 @@ export function Sidebar({ user }: { user: AppSession['user'] }) {
         <ThemeSwitch />
       </div>
 
-      <Button fullWidth onPress={openNewTx}>
+      <Button fullWidth onPress={() => openNew()}>
         <Plus size={18} strokeWidth={1.75} />
         {t('nav.addTransaction')}
       </Button>
