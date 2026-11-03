@@ -86,7 +86,7 @@ export function QuickEntry() {
   const question = state.kind === 'question';
   const parsed = state.kind === 'parsed' ? state.parsed : null;
   const pickedId = parsed
-    ? pickCategoryForSlug(pickable, parsed.categorySlug)
+    ? pickCategoryForSlug(pickable, parsed.categorySlug, parsed.type)
     : null;
   const picked = pickedId ? describe(categories, pickedId) : null;
   const canSave = parsed !== null && picked !== null;
@@ -99,14 +99,7 @@ export function QuickEntry() {
     setSaving(true);
     let res;
     try {
-      res = await createQuickTxAction({
-        type: parsed.type,
-        amount: parsed.amount,
-        categorySlug: parsed.categorySlug,
-        store: parsed.store,
-        note: parsed.note,
-        date: parsed.date,
-      });
+      res = await createQuickTxAction({ text });
     } catch {
       toast.show({ title: t('errors.unknown') });
       return;
@@ -123,8 +116,12 @@ export function QuickEntry() {
     toast.show({
       title: t('tx.added'),
       onUndo: async () => {
-        const undo = await deleteTxAction({ id });
-        if (!undo.ok) toast.show({ title: t(`errors.${undo.error}`) });
+        try {
+          const undo = await deleteTxAction({ id });
+          if (!undo.ok) toast.show({ title: t(`errors.${undo.error}`) });
+        } catch {
+          toast.show({ title: t('errors.unknown') });
+        }
       },
     });
   };
@@ -192,13 +189,13 @@ export function QuickEntry() {
           <Money
             amount={parsed.amount}
             type={parsed.type}
-            className="text-strong text-base font-medium"
+            className={`text-base font-medium ${parsed.type === 'out' ? 'text-strong' : ''}`}
           />
           <Button
             type="button"
             size="sm"
             variant="ghost"
-            onPress={() =>
+            onPress={() => {
               openNew({
                 type: parsed.type,
                 amount: parsed.amount,
@@ -206,8 +203,9 @@ export function QuickEntry() {
                 store: parsed.store,
                 note: parsed.note,
                 date: parsed.date,
-              })
-            }
+              });
+              setText('');
+            }}
           >
             {t('home.edit')}
           </Button>

@@ -84,7 +84,7 @@ function resolveSlug(slug: string): string {
 }
 
 export function parseQuick(text: string, today: string): QuickParse | null {
-  const s = text.trim();
+  const s = text.normalize('NFC').trim();
   const low = s.toLowerCase();
   const m = low.match(
     /(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)\s*(nghìn|ngàn|triệu|tr|củ|k)?/,
@@ -148,7 +148,7 @@ export function parseQuick(text: string, today: string): QuickParse | null {
 }
 
 export function isQuestion(text: string): boolean {
-  const l = text.toLowerCase();
+  const l = text.normalize('NFC').toLowerCase();
   return (
     /\?|bao nhiêu|mấy|tổng|so sánh|so với|nhiều nhất|thế nào|ra sao|đã tiêu|tiêu hết|chi hết/.test(
       l,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { addDays } from './dates';
 import { isQuestion, parseQuick } from './parse-quick';
 
 const T = '2026-10-14';
@@ -67,11 +68,25 @@ describe('parseQuick', () => {
       '2025-12-31',
     );
   });
+
+  it('normalizes NFD input', () => {
+    const nfd = 'phở 45k'.normalize('NFD');
+    expect(nfd).not.toBe('phở 45k');
+    expect(parseQuick(nfd, T)?.categorySlug).toBe('food.breakfast');
+    expect(parseQuick('grab 20k hôm qua'.normalize('NFD'), T)?.date).toBe(
+      addDays(T, -1),
+    );
+  });
 });
 
 describe('isQuestion', () => {
   it('detects questions', () => {
     expect(isQuestion('Tháng này mình tiêu bao nhiêu cho cà phê?')).toBe(true);
     expect(isQuestion('ăn phở 45k')).toBe(false);
+  });
+
+  it('normalizes NFD input', () => {
+    expect(isQuestion('tiêu hết bao nhiêu 5'.normalize('NFD'))).toBe(true);
+    expect(isQuestion('tiêu hết 5k'.normalize('NFD'))).toBe(true);
   });
 });

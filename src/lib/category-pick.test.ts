@@ -41,4 +41,45 @@ describe('pickCategoryForSlug', () => {
       pickCategoryForSlug([cat('z', null, { type: 'in' })], 'food.coffee'),
     ).toBeNull();
   });
+
+  describe('with type', () => {
+    it('skips a slug whose category type differs', () => {
+      const cats = [
+        cat('a', 'food.coffee'),
+        cat('o', 'income.other', { type: 'in' }),
+      ];
+      expect(pickCategoryForSlug(cats, 'food.coffee', 'in')).toBe('o');
+    });
+
+    it('uses income.other when income.salary was deleted', () => {
+      const cats = [
+        cat('g', 'shop.goods'),
+        cat('o', 'income.other', { type: 'in', parentId: 'r' }),
+        cat('r', 'income', { type: 'in' }),
+      ];
+      expect(pickCategoryForSlug(cats, 'income.salary', 'in')).toBe('o');
+    });
+
+    it('falls to the first child of the first in root when both are deleted', () => {
+      const cats = [
+        cat('g', 'shop.goods'),
+        cat('r2', null, { type: 'in', sortOrder: 2 }),
+        cat('r1', null, { type: 'in', sortOrder: 1 }),
+        cat('c2', null, { type: 'in', parentId: 'r1', sortOrder: 3 }),
+        cat('c1', null, { type: 'in', parentId: 'r1', sortOrder: 1 }),
+      ];
+      expect(pickCategoryForSlug(cats, 'income.salary', 'in')).toBe('c1');
+    });
+
+    it('falls to the root when it has no children', () => {
+      const cats = [cat('r1', null, { type: 'in' })];
+      expect(pickCategoryForSlug(cats, 'income.salary', 'in')).toBe('r1');
+    });
+
+    it('returns null when there is no category of that type', () => {
+      expect(
+        pickCategoryForSlug([cat('g', 'shop.goods')], 'x', 'in'),
+      ).toBeNull();
+    });
+  });
 });

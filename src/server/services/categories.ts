@@ -1,6 +1,7 @@
 import { and, asc, count, eq, isNull, max, sql } from 'drizzle-orm';
 
 import type { Locale } from '@/i18n';
+import type { TxType } from '@/lib/types';
 
 import {
   type CategoryColor,
@@ -146,8 +147,9 @@ export async function createCategory(
       .from(categories)
       .where(siblingFilter);
 
-    const lower = name.toLowerCase();
-    if (siblings.some((s) => s.name.toLowerCase() === lower)) {
+    const key = (v: string) => v.normalize('NFC').toLowerCase();
+    const lower = key(name);
+    if (siblings.some((s) => key(s.name) === lower)) {
       throw new ServiceError('duplicate_name');
     }
 
@@ -202,6 +204,7 @@ export async function deleteSubcategory(
 export async function resolveCategorySlug(
   userId: string,
   slug: string,
+  type?: TxType,
 ): Promise<string> {
   const rows = await getDb()
     .select({
@@ -213,7 +216,7 @@ export async function resolveCategorySlug(
     })
     .from(categories)
     .where(eq(categories.userId, userId));
-  const id = pickCategoryForSlug(rows, slug);
+  const id = pickCategoryForSlug(rows, slug, type);
   if (!id) throw new ServiceError('not_found');
   return id;
 }

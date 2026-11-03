@@ -233,6 +233,14 @@ describe('resolveCategorySlug', () => {
     );
   });
 
+  it('keeps income slugs in income categories when they were deleted', async () => {
+    const { u, bySlug } = await seeded();
+    await deleteSubcategory(u.id, bySlug('income.salary').id);
+    expect(await resolveCategorySlug(u.id, 'income.salary', 'in')).toBe(
+      bySlug('income.other').id,
+    );
+  });
+
   it('throws not_found when the user has no out root', async () => {
     const u = await createTestUser();
     expect(await codeOf(resolveCategorySlug(u.id, 'food.coffee'))).toBe(

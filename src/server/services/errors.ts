@@ -1,5 +1,6 @@
 export type ServiceErrorCode =
   | 'not_found'
+  | 'invalid_input'
   | 'invalid_category'
   | 'duplicate_name';
 
