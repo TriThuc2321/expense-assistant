@@ -48,7 +48,7 @@
     "income": "Income",
     "subcategories": "Subcategories",
     "removeTitle": "Delete {name}?",
-    "removeBody": "{count} transactions will move to {parent}.",
+    "removeBody": "{count, plural, one {# transaction} other {# transactions}} will move to {parent}.",
     "cancel": "Cancel",
     "confirm": "Delete"
   },
@@ -88,7 +88,7 @@
     "recentEmpty": "No transactions yet"
   },
   "transactions": {
-    "summary": "{count} transactions · spent <sum></sum>",
+    "summary": "{count, plural, one {# transaction} other {# transactions}} · spent <sum></sum>",
     "add": "Add",
     "search": "Search",
     "searchPlaceholder": "Search by note, store, category",

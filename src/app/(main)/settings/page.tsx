@@ -38,7 +38,7 @@ export default async function SettingsPage() {
       <div className={cardClass}>
         <Link
           href="/categories"
-          className="hover:bg-hover flex items-center gap-3 px-4 py-3.5"
+          className="hover:bg-hover focus-visible:outline-accent flex items-center gap-3 px-4 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2"
         >
           <Tags size={18} strokeWidth={1.75} className="text-subtle" />
           <span className="type-body-sm text-strong flex-1">

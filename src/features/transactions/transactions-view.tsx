@@ -236,7 +236,11 @@ function useCommittedField(urlValue: string) {
     setCommitted(next);
     apply(next || undefined);
   };
-  return { value, setValue, commit };
+  const reset = () => {
+    setValue('');
+    setCommitted('');
+  };
+  return { value, setValue, commit, reset };
 }
 
 function FilterPanel({
@@ -299,7 +303,15 @@ function FilterPanel({
         <Input placeholder={t('storePlaceholder')} />
       </TextField>
       <div className="flex items-end">
-        <Button variant="ghost" onPress={onClear}>
+        <Button
+          variant="ghost"
+          onPress={() => {
+            min.reset();
+            max.reset();
+            store.reset();
+            onClear();
+          }}
+        >
           {t('clear')}
         </Button>
       </div>

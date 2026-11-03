@@ -47,7 +47,7 @@ export function TxRow({ tx, today }: { tx: TxView; today: string }) {
         <Money
           amount={tx.amount}
           type={tx.type}
-          className="text-strong text-[13px] font-medium whitespace-nowrap"
+          className={`text-[13px] font-medium whitespace-nowrap ${tx.type === 'out' ? 'text-strong' : ''}`}
         />
         <span className="type-caption text-subtle">
           {dateLabel(tx.date, today, locale)}

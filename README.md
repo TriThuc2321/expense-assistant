@@ -6,6 +6,12 @@ Web app quản lý chi tiêu cá nhân và nhóm, tích hợp bot Zalo: nhắn t
 
 Next.js 16 (App Router) · HeroUI v3 · Tailwind 4 · Postgres + Drizzle · better-auth · Claude API · Cloudflare R2
 
+## Trạng thái
+
+- Phase 1: nền tảng và đăng nhập Google giới hạn theo email.
+- Phase 2 (xong): giao dịch cá nhân trên app. Nhập nhanh bằng câu tiếng Việt (ví dụ "ăn phở 45k"), thêm/sửa/xóa kèm hoàn tác, danh sách có lọc, tìm kiếm và nhóm theo ngày, quản lý danh mục, trang cài đặt (hồ sơ, giao diện).
+- Phase 3: bot Zalo và đọc ảnh hóa đơn bằng Claude.
+
 ## Chạy local
 
 Cần Node, pnpm và Docker.
