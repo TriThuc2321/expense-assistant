@@ -5,6 +5,8 @@
   },
   "common": {
     "appName": "Sổ Chi",
+    "close": "Đóng",
+    "undo": "Hoàn tác",
     "welcome": "Chào mừng trở lại"
   },
   "auth": {

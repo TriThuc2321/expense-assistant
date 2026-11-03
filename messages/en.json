@@ -5,6 +5,8 @@
   },
   "common": {
     "appName": "Sổ Chi",
+    "close": "Close",
+    "undo": "Undo",
     "welcome": "Welcome back"
   },
   "auth": {

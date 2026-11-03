@@ -5,6 +5,7 @@ import { getLocale } from 'next-intl/server';
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
 
 import './globals.css';
+import { AppToaster } from '@/components/ui/toast';
 import { ThemeProviders } from '@/providers';
 
 const spaceGrotesk = Space_Grotesk({
@@ -30,7 +31,10 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
     >
       <body className="bg-app text-body flex min-h-full flex-col font-sans">
         <NextIntlClientProvider>
-          <ThemeProviders>{children}</ThemeProviders>
+          <ThemeProviders>
+            {children}
+            <AppToaster />
+          </ThemeProviders>
         </NextIntlClientProvider>
       </body>
     </html>
