@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -6,6 +6,7 @@ import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
 
 import './globals.css';
 import { AppToaster } from '@/components/ui/toast';
+import { env } from '@/configs/env';
 import { ThemeProviders } from '@/providers';
 
 const spaceGrotesk = Space_Grotesk({
@@ -41,17 +42,48 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
   );
 }
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f4f6f9' },
+    { media: '(prefers-color-scheme: dark)', color: '#05070f' },
+  ],
+  colorScheme: 'light dark',
+  // Lets the installed app draw under the notch; layouts pad with safe-area insets.
+  viewportFit: 'cover',
+};
+
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('common');
+  const [t, locale] = await Promise.all([
+    getTranslations('common'),
+    getLocale(),
+  ]);
+  const appName = t('appName');
   const title = {
-    template: `%s | ${t('appName')}`,
-    default: t('appName'),
+    template: `%s | ${appName}`,
+    default: appName,
   };
   const description = t('description');
 
   return {
+    metadataBase: new URL(env().APP_URL),
     title,
     description,
-    openGraph: { title, description, images: ['/images/logo.png'] },
+    applicationName: appName,
+    // Private, allowlisted app: keep every page out of search results.
+    robots: { index: false, follow: false },
+    openGraph: {
+      type: 'website',
+      siteName: appName,
+      title,
+      description,
+      locale: locale === 'vi' ? 'vi_VN' : 'en_US',
+    },
+    twitter: { card: 'summary_large_image', title, description },
+    appleWebApp: {
+      capable: true,
+      title: appName,
+      statusBarStyle: 'black-translucent',
+    },
+    formatDetection: { telephone: false },
   };
 }

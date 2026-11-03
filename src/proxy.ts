@@ -3,10 +3,19 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 const LOGIN_PATH = '/login';
 const PUBLIC_PREFIXES = ['/api/auth/', '/api/zalo/', '/api/cron/'];
+// Browsers, OS installers and link-preview bots fetch these without cookies.
+const PUBLIC_METADATA_FILES = new Set([
+  '/manifest.webmanifest',
+  '/robots.txt',
+  '/icon.png',
+  '/apple-icon.png',
+  '/opengraph-image',
+]);
 
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === LOGIN_PATH ||
+    PUBLIC_METADATA_FILES.has(pathname) ||
     PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
   );
 }
@@ -22,5 +31,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|images/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icons/).*)'],
 };
