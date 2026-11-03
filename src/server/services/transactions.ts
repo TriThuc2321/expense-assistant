@@ -139,13 +139,49 @@ export async function createTransaction(
   userId: string,
   input: TxInput,
   source: 'app' | 'zalo' = 'app',
+  receiptKey: string | null = null,
 ): Promise<TxView> {
   await assertCategory(userId, input);
   const [row] = await getDb()
     .insert(transactions)
-    .values({ ...input, userId, source })
+    .values({ ...input, userId, source, receiptKey })
     .returning({ id: transactions.id });
   return getTransaction(userId, row.id);
+}
+
+export const UNDO_WINDOW_MS = 10 * 60 * 1000;
+
+export async function undoLatestZaloTransaction(
+  userId: string,
+  now: Date = new Date(),
+): Promise<TxView | null> {
+  const [latest] = await getDb()
+    .select({ id: transactions.id })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        eq(transactions.source, 'zalo'),
+        isNull(transactions.deletedAt),
+        gte(transactions.createdAt, new Date(now.getTime() - UNDO_WINDOW_MS)),
+      ),
+    )
+    .orderBy(desc(transactions.createdAt))
+    .limit(1);
+  if (!latest) return null;
+  const view = await getTransaction(userId, latest.id);
+  const deleted = await getDb()
+    .update(transactions)
+    .set({ deletedAt: now })
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        eq(transactions.id, latest.id),
+        isNull(transactions.deletedAt),
+      ),
+    )
+    .returning({ id: transactions.id });
+  return deleted.length === 0 ? null : view;
 }
 
 export async function updateTransaction(

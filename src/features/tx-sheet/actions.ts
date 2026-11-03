@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { todayVn } from '@/lib/dates';
 import { isQuestion, parseQuick } from '@/lib/parse-quick';
 import { defineAction } from '@/server/action';
-import { resolveCategorySlug } from '@/server/services/categories';
 import { ServiceError } from '@/server/services/errors';
+import { quickParseToInput } from '@/server/services/quick-entry';
 import {
   createTransaction,
   getTransaction,
@@ -29,21 +29,7 @@ const createQuick = defineAction(
     // Re-parsed here so the date comes from the server clock, not a tab left open past midnight.
     const parsed = isQuestion(text) ? null : parseQuick(text, todayVn());
     if (!parsed) throw new ServiceError('invalid_input');
-    const categoryId = await resolveCategorySlug(
-      userId,
-      parsed.categorySlug,
-      parsed.type,
-    );
-    const input = txInputSchema.safeParse({
-      type: parsed.type,
-      amount: parsed.amount,
-      categoryId,
-      store: parsed.store,
-      note: parsed.note,
-      date: parsed.date,
-    });
-    if (!input.success) throw new ServiceError('invalid_input');
-    return createTransaction(userId, input.data);
+    return createTransaction(userId, await quickParseToInput(userId, parsed));
   },
 );
 

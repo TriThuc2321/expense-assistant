@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { LOCALE } from '@/constants/locale';
 import { getDb } from '@/server/db';
-import { categories } from '@/server/db/schema';
+import { categories, transactions } from '@/server/db/schema';
 import { createTestUser, resetDb } from '@/server/db/test-utils';
 
 import { ensureDefaultCategories } from './categories';
@@ -18,6 +18,7 @@ import {
   recentTransactions,
   restoreTransaction,
   softDeleteTransaction,
+  undoLatestZaloTransaction,
   updateTransaction,
 } from './transactions';
 
@@ -185,5 +186,59 @@ describe('transactions', () => {
     expect(
       await hasTransactionsBefore(u.id, '2026-10-01', { min: 999999 }),
     ).toBe(false);
+  });
+});
+
+describe('zalo additions', () => {
+  const zaloAt = async (
+    userId: string,
+    categoryId: string,
+    createdAt: Date,
+  ) => {
+    const tx = await createTransaction(userId, input(categoryId), 'zalo');
+    await getDb()
+      .update(transactions)
+      .set({ createdAt })
+      .where(eq(transactions.id, tx.id));
+    return tx;
+  };
+  const now = new Date('2026-10-15T10:00:00Z');
+  const ago = (min: number) => new Date(now.getTime() - min * 60_000);
+
+  it('stores receiptKey and source zalo', async () => {
+    const { u, out } = await setup();
+    const tx = await createTransaction(u.id, input(out.id), 'zalo', 'r/1.jpg');
+    expect(tx.source).toBe('zalo');
+    expect(tx.receiptKey).toBe('r/1.jpg');
+  });
+
+  it('undo deletes only the newest zalo tx within 10 minutes', async () => {
+    const { u, out } = await setup();
+    const older = await zaloAt(u.id, out.id, ago(5));
+    const newest = await zaloAt(u.id, out.id, ago(2));
+    const app = await createTransaction(u.id, input(out.id));
+    await getDb()
+      .update(transactions)
+      .set({ createdAt: ago(1) })
+      .where(eq(transactions.id, app.id));
+    expect((await undoLatestZaloTransaction(u.id, now))?.id).toBe(newest.id);
+    await expect(getTransaction(u.id, newest.id)).rejects.toThrow();
+    expect((await getTransaction(u.id, older.id)).id).toBe(older.id);
+    expect((await getTransaction(u.id, app.id)).id).toBe(app.id);
+  });
+
+  it('undo ignores zalo txs older than the window', async () => {
+    const { u, out } = await setup();
+    await zaloAt(u.id, out.id, ago(11));
+    expect(await undoLatestZaloTransaction(u.id, now)).toBeNull();
+  });
+
+  it('undo never touches another user', async () => {
+    const { u, out } = await setup();
+    const b = await setup();
+    const tx = await zaloAt(b.u.id, b.out.id, ago(1));
+    expect(await undoLatestZaloTransaction(u.id, now)).toBeNull();
+    expect((await getTransaction(b.u.id, tx.id)).id).toBe(tx.id);
+    void out;
   });
 });
