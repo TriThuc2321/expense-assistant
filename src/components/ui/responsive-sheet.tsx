@@ -66,7 +66,7 @@ export function ResponsiveSheet({
       className={SCRIM_BLUR}
     >
       <Drawer.Content placement="bottom">
-        <Drawer.Dialog className="w-full rounded-t-[32px] rounded-b-none pb-[env(safe-area-inset-bottom)]">
+        <Drawer.Dialog className="rounded-t-sheet w-full rounded-b-none pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <Drawer.Handle />
           <Drawer.Header className="flex items-center justify-between gap-3">
             <Drawer.Heading className="type-h4">{title}</Drawer.Heading>
