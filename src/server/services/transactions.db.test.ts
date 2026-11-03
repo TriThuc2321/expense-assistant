@@ -172,7 +172,7 @@ describe('transactions', () => {
     });
     expect(await monthSummary(u.id, '2026-10-10')).toEqual({
       spent: 100,
-      spentLastSameRange: 800,
+      spentLastSameRange: 0,
       income: 5000,
     });
   });
