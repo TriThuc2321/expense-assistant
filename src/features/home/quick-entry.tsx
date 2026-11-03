@@ -21,7 +21,8 @@ import {
   pickCategoryForSlug,
 } from '@/lib/category-pick';
 import { dateLabel } from '@/lib/format';
-import { isQuestion, parseQuick } from '@/lib/parse-quick';
+
+import { inputState } from './input-state';
 
 const EXAMPLES = [
   'ăn phở 45k',
@@ -81,11 +82,9 @@ export function QuickEntry() {
   const inFlight = useRef(false);
 
   const pickable = useMemo(() => flatten(categories), [categories]);
-  const question = isQuestion(text);
-  const parsed = useMemo(
-    () => (question ? null : parseQuick(text, today)),
-    [question, text, today],
-  );
+  const state = useMemo(() => inputState(text, today), [text, today]);
+  const question = state.kind === 'question';
+  const parsed = state.kind === 'parsed' ? state.parsed : null;
   const pickedId = parsed
     ? pickCategoryForSlug(pickable, parsed.categorySlug)
     : null;
@@ -98,16 +97,23 @@ export function QuickEntry() {
     if (!parsed || !canSave || inFlight.current) return;
     inFlight.current = true;
     setSaving(true);
-    const res = await createQuickTxAction({
-      type: parsed.type,
-      amount: parsed.amount,
-      categorySlug: parsed.categorySlug,
-      store: parsed.store,
-      note: parsed.note,
-      date: parsed.date,
-    });
-    inFlight.current = false;
-    setSaving(false);
+    let res;
+    try {
+      res = await createQuickTxAction({
+        type: parsed.type,
+        amount: parsed.amount,
+        categorySlug: parsed.categorySlug,
+        store: parsed.store,
+        note: parsed.note,
+        date: parsed.date,
+      });
+    } catch {
+      toast.show({ title: t('errors.unknown') });
+      return;
+    } finally {
+      inFlight.current = false;
+      setSaving(false);
+    }
     if (!res.ok) {
       toast.show({ title: t(`errors.${res.error}`) });
       return;
