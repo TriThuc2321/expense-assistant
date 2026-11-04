@@ -115,7 +115,7 @@ export function TxForm({
                   'rounded-control flex flex-col items-center gap-1.5 border px-1.5 py-2.5 transition-colors',
                   selected
                     ? 'bg-selected border-accent'
-                    : 'border-subtle hover:bg-hover',
+                    : 'border-field-border hover:bg-hover',
                 )}
               >
                 <CategoryTile icon={root.icon} color={root.color} />

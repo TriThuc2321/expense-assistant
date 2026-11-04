@@ -1,10 +1,11 @@
 /* Input component */
 .input,
+.input-group,
 .textarea,
 .checkbox__control,
 .select__trigger,
 .date-input-group {
-  @apply border-border border bg-transparent shadow-none;
+  @apply border-field-border border bg-transparent shadow-none;
 
   &:hover,
   &[data-hovered='true'] {

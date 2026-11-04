@@ -31,6 +31,7 @@
   --border: var(--border-subtle);
   --separator: var(--border-subtle);
   --field-background: var(--bg-canvas);
+  --field-border: var(--border);
   --field-foreground: var(--text-strong);
   --field-placeholder: var(--text-subtle);
   --focus: var(--border-focus);
@@ -55,6 +56,8 @@
 .dark,
 [data-theme='dark'] {
   color-scheme: dark;
+  /* --border-subtle equals --surface-overlay here, so fields vanish inside sheets. */
+  --field-border: var(--border-strong);
 }
 
 @theme inline {

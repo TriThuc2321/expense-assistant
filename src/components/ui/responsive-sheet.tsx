@@ -66,7 +66,8 @@ export function ResponsiveSheet({
       className={SCRIM_BLUR}
     >
       <Drawer.Content placement="bottom">
-        <Drawer.Dialog className="rounded-t-sheet w-full rounded-b-none pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        {/* HeroUI's 85vh ignores the on-screen keyboard, so a tall sheet overflows upward past the visual viewport. */}
+        <Drawer.Dialog className="rounded-t-sheet max-h-[min(85vh,calc(var(--visual-viewport-height)-env(safe-area-inset-top)-0.5rem))] w-full rounded-b-none pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <Drawer.Handle />
           <Drawer.Header className="flex-row items-center justify-between gap-3">
             <Drawer.Heading className="type-h4">{title}</Drawer.Heading>
