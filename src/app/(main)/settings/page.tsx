@@ -3,7 +3,6 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
 import { LogoutButton } from '@/features/settings/logout-button';
-import { ThemeSwitchRow } from '@/features/settings/theme-switch-row';
 import { ZaloLinkCard } from '@/features/settings/zalo-link-card';
 import { UserAvatar } from '@/features/shell/user-avatar';
 import { requireSession } from '@/server/auth/session';
@@ -55,10 +54,6 @@ export default async function SettingsPage() {
       <ZaloLinkCard
         link={zaloLink ? { displayName: zaloLink.displayName } : null}
       />
-
-      <div className={cardClass}>
-        <ThemeSwitchRow />
-      </div>
 
       <LogoutButton />
     </div>
