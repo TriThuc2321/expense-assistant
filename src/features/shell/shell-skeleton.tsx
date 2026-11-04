@@ -2,7 +2,7 @@ import { Skeleton } from '@heroui/react';
 
 // Narrow bottom padding = 24px content gap + 66px tab bar + safe area.
 export const MAIN_CLASS =
-  'wide:px-8 wide:pt-8 wide:pb-12 min-w-0 flex-1 px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-[calc(90px+env(safe-area-inset-bottom))]';
+  'wide:px-8 wide:pt-8 wide:pb-12 min-w-0 flex-1 px-4 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(90px+env(safe-area-inset-bottom))]';
 
 const CARD_CLASS = 'bg-card border-subtle rounded-card border p-4 shadow-sm';
 const STAT_CARDS = [0, 1];
