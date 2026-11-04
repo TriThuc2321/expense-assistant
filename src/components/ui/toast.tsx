@@ -24,7 +24,6 @@ export function useToast(): { show: (opts: ShowToastOptions) => void } {
   function show({ title, onUndo }: ShowToastOptions) {
     const id = toast(title, {
       timeout: TOAST_TIMEOUT_MS,
-      description: 'Bob sent you an invitation to join HeroUI team',
       actionProps: onUndo
         ? {
             children: t('undo'),
