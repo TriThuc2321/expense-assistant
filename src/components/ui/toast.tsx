@@ -11,7 +11,7 @@ export function AppToaster() {
     <Toast.Provider
       placement="top"
       width={TOAST_WIDTH}
-      className="top-[calc(1rem+env(safe-area-inset-top))]"
+      className="top-[calc(1rem+env(safe-area-inset-top))] [&_[data-slot=toast-indicator]]:self-center"
     />
   );
 }
