@@ -12,7 +12,8 @@
     "description": "Personal expense tracking",
     "close": "Close",
     "undo": "Undo",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "refreshing": "Refreshing"
   },
   "auth": {
     "login": "Sign in",

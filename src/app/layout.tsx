@@ -7,6 +7,7 @@ import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { AppToaster } from '@/components/ui/toast';
 import { env } from '@/configs/env';
+import { SPLASH_IMAGES } from '@/lib/apple-splash';
 import { ThemeProviders } from '@/providers';
 
 const spaceGrotesk = Space_Grotesk({
@@ -83,6 +84,7 @@ export async function generateMetadata(): Promise<Metadata> {
       capable: true,
       title: appName,
       statusBarStyle: 'black-translucent',
+      startupImage: SPLASH_IMAGES,
     },
     formatDetection: { telephone: false },
   };

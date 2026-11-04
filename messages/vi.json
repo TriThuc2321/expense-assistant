@@ -12,7 +12,8 @@
     "description": "Quản lý chi tiêu cá nhân",
     "close": "Đóng",
     "undo": "Hoàn tác",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "refreshing": "Đang tải lại"
   },
   "auth": {
     "login": "Đăng nhập",
