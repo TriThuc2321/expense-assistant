@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+// Stays under the 4mb server action body limit in next.config.ts.
+export const MAX_SCAN_BYTES = 3 * 1024 * 1024;
+
 const optionalText = z
   .string()
   .nullable()

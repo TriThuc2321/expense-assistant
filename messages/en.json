@@ -78,6 +78,10 @@
     "quickTitle": "Quick entry or ask",
     "quickPlaceholder": "pho 45k · how much did I spend on coffee this month?",
     "edit": "Edit",
+    "scanImage": "Scan receipt photo",
+    "scanning": "Reading image…",
+    "scanAdded": "Added {count} transactions",
+    "aiPicksCategory": "AI will pick the category on save",
     "askSoon": "Q&A is coming soon",
     "spent": "Spent in {month}",
     "vsRange": "vs {range}",
@@ -133,6 +137,8 @@
     "not_found": "Not found",
     "invalid_category": "Invalid category",
     "duplicate_name": "That name already exists",
+    "invalid_image": "That image didn’t work, please try another",
+    "no_total": "Couldn’t read an amount, please enter it by hand",
     "invalid_input": "Invalid input",
     "unknown": "Something went wrong, please try again"
   }

@@ -4,6 +4,11 @@ import bundleAnalyzer from '@next/bundle-analyzer';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Quick entry posts a downscaled image; Vercel caps request bodies at 4.5 MB.
+    serverActions: { bodySizeLimit: '4mb' },
+  },
+
   images: {
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
   },

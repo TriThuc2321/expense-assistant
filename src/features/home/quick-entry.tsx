@@ -1,9 +1,16 @@
 'use client';
 
-import { Button, Chip, InputGroup, TextField } from '@heroui/react';
-import { MessageCircleQuestion, Sparkles, Zap } from 'lucide-react';
+import { Button, Chip, InputGroup, Spinner, TextField } from '@heroui/react';
+import { ImagePlus, MessageCircleQuestion, Sparkles, Zap } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { type FormEvent, useMemo, useRef, useState } from 'react';
+import {
+  type ChangeEvent,
+  type ClipboardEvent,
+  type FormEvent,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type { Locale } from '@/i18n';
 import type { CategoryNode } from '@/server/services/categories';
@@ -13,7 +20,8 @@ import { Money } from '@/components/ui/money';
 import { useToast } from '@/components/ui/toast';
 import {
   createQuickTxAction,
-  deleteTxAction,
+  deleteManyTxAction,
+  scanReceiptAction,
 } from '@/features/tx-sheet/actions';
 import { useTxSheet } from '@/features/tx-sheet/tx-sheet-provider';
 import {
@@ -23,6 +31,7 @@ import {
 import { dateLabel } from '@/lib/format';
 
 import { inputState } from './input-state';
+import { shrinkImage } from './shrink-image';
 
 const EXAMPLES = [
   'ăn phở 45k',
@@ -79,7 +88,9 @@ export function QuickEntry() {
   const { openNew, categories, today } = useTxSheet();
   const [text, setText] = useState('');
   const [saving, setSaving] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const inFlight = useRef(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const pickable = useMemo(() => flatten(categories), [categories]);
   const state = useMemo(() => inputState(text, today), [text, today]);
@@ -90,6 +101,21 @@ export function QuickEntry() {
     : null;
   const picked = pickedId ? describe(categories, pickedId) : null;
   const canSave = parsed !== null && picked !== null;
+  const busy = saving || scanning;
+
+  const showAdded = (title: string, ids: string[]) => {
+    toast.show({
+      title,
+      onUndo: async () => {
+        try {
+          const undo = await deleteManyTxAction({ ids });
+          if (!undo.ok) toast.show({ title: t(`errors.${undo.error}`) });
+        } catch {
+          toast.show({ title: t('errors.unknown') });
+        }
+      },
+    });
+  };
 
   const submit = async (event?: FormEvent) => {
     event?.preventDefault();
@@ -112,18 +138,57 @@ export function QuickEntry() {
       return;
     }
     setText('');
-    const { id } = res.data;
-    toast.show({
-      title: t('tx.added'),
-      onUndo: async () => {
-        try {
-          const undo = await deleteTxAction({ id });
-          if (!undo.ok) toast.show({ title: t(`errors.${undo.error}`) });
-        } catch {
-          toast.show({ title: t('errors.unknown') });
-        }
-      },
-    });
+    showAdded(t('tx.added'), [res.data.id]);
+  };
+
+  const scan = async (file: File) => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setScanning(true);
+    let res;
+    try {
+      const image = await shrinkImage(file);
+      if (!image) {
+        toast.show({ title: t('errors.invalid_image') });
+        return;
+      }
+      const formData = new FormData();
+      formData.append('image', image);
+      res = await scanReceiptAction(formData);
+    } catch {
+      toast.show({ title: t('errors.unknown') });
+      return;
+    } finally {
+      inFlight.current = false;
+      setScanning(false);
+    }
+    if (!res.ok) {
+      toast.show({ title: t(`errors.${res.error}`) });
+      return;
+    }
+    const { ids } = res.data;
+    showAdded(
+      ids.length === 1
+        ? t('tx.added')
+        : t('home.scanAdded', { count: ids.length }),
+      ids,
+    );
+  };
+
+  const onPickFile = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Cleared so picking the same file again still fires a change event.
+    event.target.value = '';
+    if (file) void scan(file);
+  };
+
+  const onPaste = (event: ClipboardEvent<HTMLFormElement>) => {
+    const file = Array.from(event.clipboardData.files).find((f) =>
+      f.type.startsWith('image/'),
+    );
+    if (!file) return;
+    event.preventDefault();
+    void scan(file);
   };
 
   const previewMeta =
@@ -142,6 +207,7 @@ export function QuickEntry() {
   return (
     <form
       onSubmit={submit}
+      onPaste={onPaste}
       className="bg-card border-subtle rounded-panel flex flex-col gap-3.5 border p-5 shadow-sm"
     >
       <div className="type-overline text-accent-text flex items-center gap-2">
@@ -154,6 +220,7 @@ export function QuickEntry() {
           aria-label={t('home.quickTitle')}
           value={text}
           onChange={setText}
+          isDisabled={scanning}
           className="min-w-0 flex-1"
         >
           <InputGroup fullWidth>
@@ -163,10 +230,42 @@ export function QuickEntry() {
             <InputGroup.Input placeholder={t('home.quickPlaceholder')} />
           </InputGroup>
         </TextField>
-        <Button type="submit" size="lg" isDisabled={!canSave || saving}>
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={onPickFile}
+        />
+        <Button
+          type="button"
+          size="lg"
+          variant="secondary"
+          isIconOnly
+          aria-label={t('home.scanImage')}
+          isDisabled={saving}
+          isPending={scanning}
+          onPress={() => fileInput.current?.click()}
+        >
+          {({ isPending }) =>
+            isPending ? (
+              <Spinner color="current" size="sm" />
+            ) : (
+              <ImagePlus size={18} strokeWidth={1.75} aria-hidden />
+            )
+          }
+        </Button>
+        <Button type="submit" size="lg" isDisabled={!canSave || busy}>
           {t('tx.save')}
         </Button>
       </div>
+
+      {scanning ? (
+        <output className="type-caption text-muted flex items-center gap-2">
+          <Sparkles size={14} strokeWidth={1.75} aria-hidden />
+          <span>{t('home.scanning')}</span>
+        </output>
+      ) : null}
 
       {parsed && picked ? (
         <div className="bg-inset border-subtle rounded-card flex flex-wrap items-center gap-3 border px-3.5 py-3">
@@ -185,6 +284,11 @@ export function QuickEntry() {
               </Chip>
             </div>
             <div className="type-caption text-subtle">{previewMeta}</div>
+            {parsed.confidence === 'low' ? (
+              <div className="type-caption text-muted">
+                {t('home.aiPicksCategory')}
+              </div>
+            ) : null}
           </div>
           <Money
             amount={parsed.amount}
