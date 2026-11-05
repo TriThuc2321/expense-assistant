@@ -138,7 +138,6 @@ export function UserCard({
               isIconOnly
               variant="tertiary"
               size="sm"
-              isDisabled={busy}
               aria-label={t('admin.users.actions')}
             >
               <Ellipsis size={18} strokeWidth={1.75} />

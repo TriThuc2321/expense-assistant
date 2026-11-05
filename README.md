@@ -55,18 +55,18 @@ Dọn dữ liệu: đặt cron hằng ngày gọi `GET /api/cron/cleanup` với 
 
 ## Scripts
 
-| Lệnh                | Mô tả                                                                                                                         |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`          | Dev server                                                                                                                    |
-| `pnpm tunnel`       | Mở tunnel HTTPS cho webhook Zalo                                                                                              |
-| `pnpm zalo:webhook` | Đăng ký webhook của bot Zalo                                                                                                  |
-| `pnpm admin:grant`  | Cấp quyền admin sau khi đăng nhập lần đầu: `pnpm admin:grant <email>`; thêm `DATABASE_URL=…` phía trước để trỏ vào production |
-| `pnpm test`         | Chạy toàn bộ test: unit + DB (cần Postgres trong Docker)                                                                      |
-| `pnpm test:unit`    | Chỉ unit test, không cần DB                                                                                                   |
-| `pnpm db:generate`  | Sinh migration từ schema Drizzle                                                                                              |
-| `pnpm db:migrate`   | Áp migration vào DB                                                                                                           |
-| `pnpm db:studio`    | Drizzle Studio: xem và sửa DB trên trình duyệt                                                                                |
-| `pnpm lint`         | oxlint                                                                                                                        |
-| `pnpm format`       | oxfmt                                                                                                                         |
-| `pnpm typecheck`    | Kiểm tra kiểu                                                                                                                 |
-| `pnpm build`        | Build production                                                                                                              |
+| Lệnh                | Mô tả                                                                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`          | Dev server                                                                                                                                                  |
+| `pnpm tunnel`       | Mở tunnel HTTPS cho webhook Zalo                                                                                                                            |
+| `pnpm zalo:webhook` | Đăng ký webhook của bot Zalo                                                                                                                                |
+| `pnpm admin:grant`  | Cấp quyền admin (và bỏ chặn nếu đang bị chặn) sau khi đăng nhập lần đầu: `pnpm admin:grant <email>`; thêm `DATABASE_URL=…` phía trước để trỏ vào production |
+| `pnpm test`         | Chạy toàn bộ test: unit + DB (cần Postgres trong Docker)                                                                                                    |
+| `pnpm test:unit`    | Chỉ unit test, không cần DB                                                                                                                                 |
+| `pnpm db:generate`  | Sinh migration từ schema Drizzle                                                                                                                            |
+| `pnpm db:migrate`   | Áp migration vào DB                                                                                                                                         |
+| `pnpm db:studio`    | Drizzle Studio: xem và sửa DB trên trình duyệt                                                                                                              |
+| `pnpm lint`         | oxlint                                                                                                                                                      |
+| `pnpm format`       | oxfmt                                                                                                                                                       |
+| `pnpm typecheck`    | Kiểm tra kiểu                                                                                                                                               |
+| `pnpm build`        | Build production                                                                                                                                            |

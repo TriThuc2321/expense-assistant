@@ -33,6 +33,7 @@ function createAuth() {
     },
     user: { additionalFields: USER_ADDITIONAL_FIELDS },
     // Cookie Max-Age isn't refreshed by RSC renders, so the lifetime must cover normal daily use.
+    // cookieCache must stay off: instant block and demote rely on reading the user row on every request.
     session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
     onAPIError: { errorURL: '/login' },
     databaseHooks: createDatabaseHooks({

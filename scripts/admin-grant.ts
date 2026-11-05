@@ -12,14 +12,15 @@ const sql = postgres(process.env.DATABASE_URL, { max: 1 });
 
 try {
   const rows = await sql`
-    UPDATE "user" SET role = 'admin' WHERE email = ${email} RETURNING email
+    UPDATE "user" SET role = 'admin', blocked_at = NULL WHERE email = ${email} RETURNING email
   `;
 
   if (rows.length === 0) {
     console.error(`No account for ${email}. Sign in once first.`);
     process.exitCode = 1;
   } else {
-    console.info(`${email} is now an admin.`);
+    const { host, pathname } = new URL(process.env.DATABASE_URL);
+    console.info(`${email} is now an active admin on ${host}${pathname}.`);
   }
 } finally {
   await sql.end();
