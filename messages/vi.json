@@ -33,7 +33,8 @@
     "categories": "Danh mục",
     "settings": "Cài đặt",
     "main": "Điều hướng chính",
-    "addTransaction": "Thêm giao dịch"
+    "addTransaction": "Thêm giao dịch",
+    "users": "Người dùng"
   },
   "categories": {
     "title": "Thêm danh mục",
@@ -131,6 +132,30 @@
       "linkedAs": "Đã liên kết với {name}",
       "unlink": "Hủy liên kết",
       "unlinked": "Đã hủy liên kết Zalo"
+    }
+  },
+  "admin": {
+    "users": {
+      "you": "Bạn",
+      "actions": "Thao tác",
+      "roleAdmin": "Quản trị",
+      "roleUser": "Người dùng",
+      "statusActive": "Hoạt động",
+      "statusBlocked": "Đã khóa",
+      "joined": "Tham gia {date}",
+      "makeAdmin": "Cấp quyền quản trị",
+      "removeAdmin": "Gỡ quyền quản trị",
+      "block": "Khóa",
+      "unblock": "Mở khóa",
+      "delete": "Xóa",
+      "blockTitle": "Khóa {name}?",
+      "blockBody": "Người này sẽ bị đăng xuất và không dùng được ứng dụng hay bot Zalo cho đến khi được mở khóa.",
+      "deleteTitle": "Xóa {name}?",
+      "deleteBody": "Toàn bộ dữ liệu của {name} sẽ bị xóa. Không thể hoàn tác.",
+      "roleChanged": "Đã đổi quyền",
+      "blocked": "Đã khóa",
+      "unblocked": "Đã mở khóa",
+      "deleted": "Đã xóa"
     }
   },
   "errors": {

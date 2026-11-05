@@ -1,4 +1,4 @@
-import { ChevronRight, Tags } from 'lucide-react';
+import { ChevronRight, Tags, Users } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
@@ -49,6 +49,22 @@ export default async function SettingsPage() {
           <span className="type-caption text-muted">{roots.length}</span>
           <ChevronRight size={16} strokeWidth={1.75} className="text-subtle" />
         </Link>
+        {user.role === 'admin' ? (
+          <Link
+            href="/admin/users"
+            className="hover:bg-hover focus-visible:outline-accent flex items-center gap-3 px-4 py-3.5 focus-visible:outline-2 focus-visible:-outline-offset-2"
+          >
+            <Users size={18} strokeWidth={1.75} className="text-subtle" />
+            <span className="type-body-sm text-strong flex-1">
+              {tNav('users')}
+            </span>
+            <ChevronRight
+              size={16}
+              strokeWidth={1.75}
+              className="text-subtle"
+            />
+          </Link>
+        ) : null}
       </div>
 
       <ZaloLinkCard

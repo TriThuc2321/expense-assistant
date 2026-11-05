@@ -33,7 +33,8 @@
     "categories": "Categories",
     "settings": "Settings",
     "main": "Main navigation",
-    "addTransaction": "Add transaction"
+    "addTransaction": "Add transaction",
+    "users": "Users"
   },
   "categories": {
     "title": "Add category",
@@ -131,6 +132,30 @@
       "linkedAs": "Linked as {name}",
       "unlink": "Unlink",
       "unlinked": "Zalo unlinked"
+    }
+  },
+  "admin": {
+    "users": {
+      "you": "You",
+      "actions": "User actions",
+      "roleAdmin": "Admin",
+      "roleUser": "User",
+      "statusActive": "Active",
+      "statusBlocked": "Blocked",
+      "joined": "Joined {date}",
+      "makeAdmin": "Make admin",
+      "removeAdmin": "Remove admin",
+      "block": "Block",
+      "unblock": "Unblock",
+      "delete": "Delete",
+      "blockTitle": "Block {name}?",
+      "blockBody": "They’ll be signed out and can’t use the app or Zalo bot until unblocked.",
+      "deleteTitle": "Delete {name}?",
+      "deleteBody": "All of {name}’s data will be removed. This can’t be undone.",
+      "roleChanged": "Role updated",
+      "blocked": "User blocked",
+      "unblocked": "User unblocked",
+      "deleted": "User deleted"
     }
   },
   "errors": {
