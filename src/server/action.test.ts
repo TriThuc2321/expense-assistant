@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { requireSession } from '@/server/auth/session';
 import { ServiceError } from '@/server/services/errors';
 
-import { defineAction } from './action';
+import { defineAction, defineAdminAction } from './action';
 
 vi.mock('@/server/auth/session', () => ({ requireSession: vi.fn() }));
 vi.mock('next/cache', () => ({ refresh: vi.fn() }));
@@ -70,5 +70,48 @@ describe('defineAction', () => {
     const handler = vi.fn();
     await expect(defineAction(schema, handler)({ n: 1 })).rejects.toBe(err);
     expect(handler).not.toHaveBeenCalled();
+  });
+});
+
+describe('defineAdminAction', () => {
+  const asRole = (role: 'admin' | 'user') =>
+    vi.mocked(requireSession).mockResolvedValue({
+      user: { id: 'u1', name: 'A', email: 'a@x.com', image: null, role },
+    });
+
+  it('returns forbidden for a non-admin without running the handler', async () => {
+    asRole('user');
+    const handler = vi.fn();
+    expect(await defineAdminAction(schema, handler)({ n: 1 })).toEqual({
+      ok: false,
+      error: 'forbidden',
+    });
+    expect(handler).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it('returns forbidden, not invalid_input, for a non-admin with bad input', async () => {
+    asRole('user');
+    expect(
+      await defineAdminAction(schema, vi.fn())({ n: 'x' } as never),
+    ).toEqual({ ok: false, error: 'forbidden' });
+  });
+
+  it('passes the actor id to the handler for an admin', async () => {
+    asRole('admin');
+    const handler = vi.fn(async () => 42);
+    expect(await defineAdminAction(schema, handler)({ n: 1 })).toEqual({
+      ok: true,
+      data: 42,
+    });
+    expect(handler).toHaveBeenCalledWith('u1', { n: 1 });
+  });
+
+  it('maps ServiceError for an admin', async () => {
+    asRole('admin');
+    const res = await defineAdminAction(schema, async () => {
+      throw new ServiceError('cannot_modify_self');
+    })({ n: 1 });
+    expect(res).toEqual({ ok: false, error: 'cannot_modify_self' });
   });
 });

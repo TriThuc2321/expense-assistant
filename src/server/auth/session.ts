@@ -1,7 +1,7 @@
 import 'server-only';
 import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { cache } from 'react';
 
 import type { UserRole } from '@/lib/types';
@@ -70,4 +70,10 @@ export const requireSession = cache(async (): Promise<AppSession> => {
       role: role === 'admin' ? 'admin' : 'user',
     },
   };
+});
+
+export const requireAdmin = cache(async (): Promise<AppSession> => {
+  const session = await requireSession();
+  if (session.user.role !== 'admin') notFound();
+  return session;
 });
