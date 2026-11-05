@@ -1,5 +1,12 @@
 import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
+import type { UserRole } from '@/lib/types';
+
+export const USER_ROLES = [
+  'admin',
+  'user',
+] as const satisfies readonly UserRole[];
+
 const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
@@ -16,6 +23,8 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  role: text('role').$type<UserRole>().notNull().default('user'),
+  blockedAt: timestamp('blocked_at', { withTimezone: true }),
   ...timestamps,
 });
 

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { getDb } from './index';
 import {
+  aiUsage,
   categories,
   transactions,
   user,
@@ -91,5 +92,21 @@ describe('schema constraints', () => {
     await getDb().delete(user).where(eq(user.id, u.id));
     expect(await getDb().select().from(zaloLinks)).toHaveLength(0);
     expect(await getDb().select().from(zaloLinkCodes)).toHaveLength(0);
+  });
+
+  it('defaults new users to role user and not blocked', async () => {
+    const u = await createTestUser();
+    const [row] = await getDb().select().from(user).where(eq(user.id, u.id));
+    expect(row.role).toBe('user');
+    expect(row.blockedAt).toBeNull();
+  });
+
+  it('cascades ai_usage when the user is deleted', async () => {
+    const u = await createTestUser();
+    await getDb()
+      .insert(aiUsage)
+      .values({ userId: u.id, day: '2026-11-05', count: 1 });
+    await getDb().delete(user).where(eq(user.id, u.id));
+    expect(await getDb().select().from(aiUsage)).toHaveLength(0);
   });
 });

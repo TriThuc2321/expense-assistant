@@ -15,6 +15,13 @@
       "when": 1793720847835,
       "tag": "0001_zalo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793862513551,
+      "tag": "0002_roles_ai_usage",
+      "breakpoints": true
     }
   ]
 }
