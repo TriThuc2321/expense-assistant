@@ -3,7 +3,6 @@ const defaults: Record<string, string> = {
   BETTER_AUTH_SECRET: 'test-better-auth-secret-0123456789ab',
   GOOGLE_CLIENT_ID: 'test-google-client-id',
   GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
-  ALLOWED_EMAILS: 'test@example.com',
   ZALO_BOT_TOKEN: 'test-zalo-bot-token',
   ZALO_WEBHOOK_SECRET: 'test-zalo-webhook-secret',
   OPENAI_API_KEY: 'test-openai-key',

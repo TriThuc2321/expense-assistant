@@ -1,7 +1,11 @@
 import 'server-only';
 import { z } from 'zod';
 
-import { parseAllowedEmails } from '@/server/auth/allowlist';
+// An empty `AI_DAILY_LIMIT=` line in .env files means unset, not 0.
+export const aiDailyLimit = z.preprocess(
+  (v) => (v === '' ? undefined : v),
+  z.coerce.number().int().positive().default(100),
+);
 
 const envSchema = z.object({
   NODE_ENV: z
@@ -14,7 +18,6 @@ const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
-  ALLOWED_EMAILS: z.string().min(1).transform(parseAllowedEmails),
 
   ZALO_BOT_TOKEN: z.string().min(1),
   // Zalo requires the webhook secret to be 8-256 chars.
@@ -28,6 +31,8 @@ const envSchema = z.object({
   R2_BUCKET: z.string().min(1),
 
   CRON_SECRET: z.string().min(16),
+
+  AI_DAILY_LIMIT: aiDailyLimit,
 });
 
 export type Env = z.infer<typeof envSchema>;

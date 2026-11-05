@@ -4,12 +4,9 @@ import { APIError } from 'better-auth/api';
 
 import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALES, type Locale } from '@/i18n';
 
-import { isEmailAllowed } from './allowlist';
-
-export const NOT_INVITED = 'not_invited';
+export const BLOCKED = 'blocked';
 
 type DatabaseHooks = NonNullable<BetterAuthOptions['databaseHooks']>;
-type UserCreate = NonNullable<NonNullable<DatabaseHooks['user']>['create']>;
 type SessionCreate = NonNullable<
   NonNullable<DatabaseHooks['session']>['create']
 >;
@@ -17,8 +14,7 @@ type SessionCreate = NonNullable<
 type HookContext = Parameters<NonNullable<SessionCreate['after']>>[1];
 
 export type DatabaseHookDeps = {
-  allowed: Set<string>;
-  findUserEmail(userId: string): Promise<string | null>;
+  isBlocked(userId: string): Promise<boolean>;
   ensureCategories(userId: string, locale: Locale): Promise<void>;
 };
 
@@ -34,10 +30,10 @@ export function localeFromCookieHeader(
   return DEFAULT_LOCALE;
 }
 
-function notInvited(): APIError {
+function blocked(): APIError {
   return new APIError('FORBIDDEN', {
-    code: NOT_INVITED,
-    message: NOT_INVITED,
+    code: BLOCKED,
+    message: BLOCKED,
   });
 }
 
@@ -46,26 +42,17 @@ function cookieHeaderOf(context: HookContext) {
 }
 
 export type AppDatabaseHooks = {
-  user: { create: Pick<Required<UserCreate>, 'before'> };
   session: { create: Required<SessionCreate> };
 };
 
 export function createDatabaseHooks(deps: DatabaseHookDeps): AppDatabaseHooks {
   return {
-    user: {
-      create: {
-        before: async (user) => {
-          if (!isEmailAllowed(user.email, deps.allowed)) throw notInvited();
-        },
-      },
-    },
     session: {
       create: {
-        // Existing users can't sign in again once removed from ALLOWED_EMAILS;
-        // their live sessions are rejected separately by getAllowedSession().
+        // Blocked users can't sign in again; their live sessions are rejected
+        // separately by getActiveSession().
         before: async (session) => {
-          const email = await deps.findUserEmail(session.userId);
-          if (!isEmailAllowed(email, deps.allowed)) throw notInvited();
+          if (await deps.isBlocked(session.userId)) throw blocked();
         },
         // Seeding on every sign-in (not user.create.after) lets a failed first
         // seed heal next time, so a failure here must not abort the sign-in.

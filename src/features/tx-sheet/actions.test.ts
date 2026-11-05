@@ -25,6 +25,7 @@ vi.mock('@/server/services/receipts', async (importOriginal) => ({
   ...(await importOriginal<object>()),
 }));
 vi.mock('@/server/ai/parse-text', () => ({ parseText: vi.fn() }));
+vi.mock('@/server/services/ai-usage', () => ({ consumeAiCall: vi.fn() }));
 vi.mock('@/server/ai/parse-receipt', () => ({
   MAX_RECEIPT_ITEMS: 20,
   parseReceipt: vi.fn(),
@@ -34,6 +35,7 @@ import type { TxInput, TxView } from '@/server/services/transactions';
 
 import { parseReceipt } from '@/server/ai/parse-receipt';
 import { parseText } from '@/server/ai/parse-text';
+import { consumeAiCall } from '@/server/services/ai-usage';
 import {
   listCategories,
   resolveCategorySlug,
@@ -73,6 +75,7 @@ function imageForm(bytes: number[] | Uint8Array) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(consumeAiCall).mockResolvedValue(true);
   vi.mocked(listCategories).mockResolvedValue(CATEGORIES);
   vi.mocked(resolveCategorySlug).mockResolvedValue('id:shop.goods');
   vi.mocked(quickParseToInput).mockResolvedValue(KEYWORD_INPUT);
@@ -138,7 +141,58 @@ describe('scanReceiptAction', () => {
   });
 });
 
+describe('scanReceiptAction daily cap', () => {
+  it('refuses at the cap without calling the model or saving', async () => {
+    vi.mocked(consumeAiCall).mockResolvedValue(false);
+    const res = await scanReceiptAction(imageForm(JPEG));
+
+    expect(res).toEqual({ ok: false, error: 'ai_limit_reached' });
+    expect(parseReceipt).not.toHaveBeenCalled();
+    expect(createTransactions).not.toHaveBeenCalled();
+  });
+
+  it('counts one call for a multi-item receipt', async () => {
+    const item = {
+      amount: 45_000,
+      store: null,
+      date: '2026-11-05',
+      categoryId: 'food',
+      note: null,
+    };
+    vi.mocked(parseReceipt).mockResolvedValue({
+      isReceipt: true,
+      items: [item, { ...item, amount: 32_000 }],
+    });
+    await scanReceiptAction(imageForm(JPEG));
+
+    expect(consumeAiCall).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not count a call when the user has no categories', async () => {
+    vi.mocked(listCategories).mockResolvedValue([]);
+    await scanReceiptAction(imageForm(JPEG));
+
+    expect(consumeAiCall).not.toHaveBeenCalled();
+  });
+});
+
 describe('createQuickTxAction', () => {
+  it('falls back to the keyword result at the cap without calling the model', async () => {
+    vi.mocked(consumeAiCall).mockResolvedValue(false);
+    const res = await createQuickTxAction({ text: 'xyz 100k' });
+
+    expect(res.ok).toBe(true);
+    expect(parseText).not.toHaveBeenCalled();
+    expect(createTransaction).toHaveBeenCalledWith('u1', KEYWORD_INPUT);
+  });
+
+  it('does not count a call when the user has no categories', async () => {
+    vi.mocked(listCategories).mockResolvedValue([]);
+    await createQuickTxAction({ text: 'xyz 100k' });
+
+    expect(consumeAiCall).not.toHaveBeenCalled();
+  });
+
   it('keeps the parsed amount and date when the model refines the category', async () => {
     vi.mocked(parseText).mockResolvedValue({
       type: 'out',
@@ -171,6 +225,7 @@ describe('createQuickTxAction', () => {
   it('does not call the model for a confident keyword match', async () => {
     await createQuickTxAction({ text: 'ăn phở 45k' });
     expect(parseText).not.toHaveBeenCalled();
+    expect(consumeAiCall).not.toHaveBeenCalled();
   });
 
   it('rejects a question', async () => {

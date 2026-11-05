@@ -6,23 +6,23 @@ import { redirect } from 'next/navigation';
 
 import { GoogleButton } from '@/features/auth/google-button';
 import { LogoTile } from '@/features/shell/logo-tile';
-import { NOT_INVITED } from '@/server/auth/hooks';
-import { getAllowedSession } from '@/server/auth/session';
+import { BLOCKED } from '@/server/auth/hooks';
+import { getActiveSession } from '@/server/auth/session';
 
 export default async function Page({ searchParams }: PageProps<'/login'>) {
   const [t, tCommon, { error }, session] = await Promise.all([
     getTranslations('auth'),
     getTranslations('common'),
     searchParams,
-    getAllowedSession(),
+    getActiveSession(),
   ]);
 
   if (session.status === 'ok') redirect('/');
 
   const errorKey = !error
     ? null
-    : error === NOT_INVITED
-      ? 'not_invited'
+    : error === BLOCKED
+      ? 'blocked'
       : 'google_login_failed';
 
   return (

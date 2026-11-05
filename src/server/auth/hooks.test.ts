@@ -7,54 +7,30 @@ import { createDatabaseHooks, localeFromCookieHeader } from './hooks';
 type Deps = Parameters<typeof createDatabaseHooks>[0];
 
 const deps = (over: Partial<Deps> = {}) => ({
-  allowed: new Set(['ok@x.com']),
-  findUserEmail: vi.fn(async (_userId: string): Promise<string | null> => {
-    return 'ok@x.com';
-  }),
+  isBlocked: vi.fn(async (_userId: string) => false),
   ensureCategories: vi.fn(async () => {}),
   ...over,
 });
 
 describe('createDatabaseHooks', () => {
-  it('user.create.before throws not_invited for unlisted email', async () => {
-    const h = createDatabaseHooks(deps());
-    await expect(
-      h.user.create.before({ email: 'no@x.com' } as any, null),
-    ).rejects.toMatchObject({ body: { code: 'not_invited' } });
-  });
-
-  it('user.create.before passes listed email', async () => {
-    const h = createDatabaseHooks(deps());
-    await expect(
-      h.user.create.before({ email: 'OK@x.com' } as any, null),
-    ).resolves.toBeUndefined();
-  });
-
-  it('session.create.before blocks a user whose email was removed from the list', async () => {
-    const h = createDatabaseHooks(
-      deps({ findUserEmail: vi.fn(async () => 'removed@x.com') }),
-    );
+  it('session.create.before blocks a blocked user', async () => {
+    const h = createDatabaseHooks(deps({ isBlocked: vi.fn(async () => true) }));
     await expect(
       h.session.create.before({ userId: 'u1' } as any, null),
-    ).rejects.toMatchObject({ body: { code: 'not_invited' } });
+    ).rejects.toMatchObject({ body: { code: 'blocked' } });
   });
 
-  it('session.create.before blocks a session for an unknown user', async () => {
-    const h = createDatabaseHooks(
-      deps({ findUserEmail: vi.fn(async () => null) }),
-    );
-    await expect(
-      h.session.create.before({ userId: 'ghost' } as any, null),
-    ).rejects.toMatchObject({ body: { code: 'not_invited' } });
-  });
-
-  it('session.create.before passes a listed user', async () => {
+  it('session.create.before passes an active user', async () => {
     const d = deps();
     const h = createDatabaseHooks(d);
     await expect(
       h.session.create.before({ userId: 'u1' } as any, null),
     ).resolves.toBeUndefined();
-    expect(d.findUserEmail).toHaveBeenCalledWith('u1');
+    expect(d.isBlocked).toHaveBeenCalledWith('u1');
+  });
+
+  it('has no user hook, so anyone can sign up', () => {
+    expect(createDatabaseHooks(deps())).not.toHaveProperty('user');
   });
 
   it('session.create.after seeds with the cookie locale', async () => {

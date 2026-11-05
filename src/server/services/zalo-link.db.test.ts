@@ -2,12 +2,12 @@ import { eq, sql } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { getDb } from '@/server/db';
-import { zaloLinkCodes, zaloUpdates } from '@/server/db/schema';
+import { user, zaloLinkCodes, zaloUpdates } from '@/server/db/schema';
 import { createTestUser, resetDb } from '@/server/db/test-utils';
 
 import {
   createLinkCode,
-  findAllowedUserIdByZaloId,
+  findActiveUserIdByZaloId,
   findUserIdByZaloId,
   getZaloLink,
   markUpdateSeen,
@@ -89,17 +89,27 @@ describe('links', () => {
   });
 });
 
-describe('findAllowedUserIdByZaloId', () => {
-  it('returns the linked user only while their email is allowed', async () => {
-    const allowed = await createTestUser({ email: 'test@example.com' });
-    const removed = await createTestUser({ email: 'gone@example.com' });
-    await redeem((await createLinkCode(allowed.id, NOW)).code, 'Z1');
-    await redeem((await createLinkCode(removed.id, NOW)).code, 'Z2');
-
-    expect(await findAllowedUserIdByZaloId('Z1')).toBe(allowed.id);
-    expect(await findAllowedUserIdByZaloId('Z2')).toBeNull();
-    expect(await findAllowedUserIdByZaloId('Z3')).toBeNull();
+describe('findActiveUserIdByZaloId', () => {
+  it('returns the linked user until blocked, and again after unblock', async () => {
+    const u = await createTestUser();
+    await redeem((await createLinkCode(u.id, NOW)).code, 'Z1');
+    expect(await findActiveUserIdByZaloId('Z1')).toBe(u.id);
+    await getDb().update(user).set({ blockedAt: NOW }).where(eq(user.id, u.id));
+    expect(await findActiveUserIdByZaloId('Z1')).toBeNull();
+    await getDb()
+      .update(user)
+      .set({ blockedAt: null })
+      .where(eq(user.id, u.id));
+    expect(await findActiveUserIdByZaloId('Z1')).toBe(u.id);
+    expect(await findActiveUserIdByZaloId('Z3')).toBeNull();
   });
+});
+
+it('refuses a link code owned by a blocked user and leaves it unused', async () => {
+  const u = await createTestUser({ blockedAt: NOW });
+  const { code } = await createLinkCode(u.id, NOW);
+  expect(await redeem(code)).toBeNull();
+  expect(await findUserIdByZaloId('z1')).toBeNull();
 });
 
 describe('dedupe and pruning', () => {

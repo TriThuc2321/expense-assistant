@@ -4,7 +4,9 @@ export type ServiceErrorCode =
   | 'invalid_category'
   | 'duplicate_name'
   | 'invalid_image'
-  | 'no_total';
+  | 'no_total'
+  | 'cannot_modify_self'
+  | 'ai_limit_reached';
 
 export class ServiceError extends Error {
   code: ServiceErrorCode;

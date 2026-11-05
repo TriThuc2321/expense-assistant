@@ -10,6 +10,7 @@ import * as schema from '@/server/db/schema';
 import { ensureDefaultCategories } from '@/server/services/categories';
 
 import { createDatabaseHooks } from './hooks';
+import { USER_ADDITIONAL_FIELDS } from './user-fields';
 
 function createAuth() {
   const {
@@ -17,7 +18,6 @@ function createAuth() {
     BETTER_AUTH_SECRET,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    ALLOWED_EMAILS,
   } = env();
 
   return betterAuth({
@@ -31,18 +31,19 @@ function createAuth() {
         prompt: 'select_account',
       },
     },
+    user: { additionalFields: USER_ADDITIONAL_FIELDS },
     // Cookie Max-Age isn't refreshed by RSC renders, so the lifetime must cover normal daily use.
+    // cookieCache must stay off: instant block and demote rely on reading the user row on every request.
     session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
     onAPIError: { errorURL: '/login' },
     databaseHooks: createDatabaseHooks({
-      allowed: ALLOWED_EMAILS,
-      findUserEmail: async (userId) => {
+      isBlocked: async (userId) => {
         const [row] = await getDb()
-          .select({ email: schema.user.email })
+          .select({ blockedAt: schema.user.blockedAt })
           .from(schema.user)
           .where(eq(schema.user.id, userId))
           .limit(1);
-        return row?.email ?? null;
+        return row?.blockedAt != null;
       },
       ensureCategories: ensureDefaultCategories,
     }),

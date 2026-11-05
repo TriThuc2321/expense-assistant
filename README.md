@@ -28,7 +28,6 @@ pnpm dev
 
 - `BETTER_AUTH_SECRET`: tạo bằng `openssl rand -base64 32`.
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: tạo OAuth client trên Google Cloud Console và thêm redirect URI `http://localhost:3000/api/auth/callback/google`.
-- `ALLOWED_EMAILS`: danh sách email được phép đăng nhập, cách nhau bằng dấu phẩy, không phân biệt hoa thường. Email không có trong danh sách bị chặn.
 - Các biến Zalo, Anthropic, R2 và `CRON_SECRET` là tùy chọn cho đến Phase 3, chưa cần để chạy app.
 
 Webhook Zalo cần URL HTTPS công khai, dev dùng ngrok với domain tĩnh (làm một lần):
@@ -46,7 +45,7 @@ pnpm tunnel
 
 ## Bot Zalo
 
-Biến môi trường (xem `.env.example`): `ZALO_BOT_TOKEN`, `ZALO_WEBHOOK_SECRET` (8-256 ký tự, Zalo gửi lại trong header `X-Bot-Api-Secret-Token`), `OPENAI_API_KEY`, các biến `R2_*` và `CRON_SECRET` (tối thiểu 16 ký tự).
+Biến môi trường (xem `.env.example`): `ZALO_BOT_TOKEN`, `ZALO_WEBHOOK_SECRET` (8-256 ký tự, Zalo gửi lại trong header `X-Bot-Api-Secret-Token`), `OPENAI_API_KEY`, các biến `R2_*` và `CRON_SECRET` (tối thiểu 16 ký tự). Tùy chọn: `AI_DAILY_LIMIT` (số lần gọi AI mỗi người dùng mỗi ngày, mặc định 100, admin không bị giới hạn).
 
 Đăng ký webhook khi dev: chạy `pnpm tunnel` (cần `DEV_TUNNEL_HOST`, xem trên), rồi `pnpm zalo:webhook`. Lệnh này gọi `setWebhook` tới `https://<DEV_TUNNEL_HOST>/api/zalo/webhook`; có thể truyền URL gốc khác: `pnpm zalo:webhook https://example.com`.
 
@@ -56,17 +55,18 @@ Dọn dữ liệu: đặt cron hằng ngày gọi `GET /api/cron/cleanup` với 
 
 ## Scripts
 
-| Lệnh                | Mô tả                                                    |
-| ------------------- | -------------------------------------------------------- |
-| `pnpm dev`          | Dev server                                               |
-| `pnpm tunnel`       | Mở tunnel HTTPS cho webhook Zalo                         |
-| `pnpm zalo:webhook` | Đăng ký webhook của bot Zalo                             |
-| `pnpm test`         | Chạy toàn bộ test: unit + DB (cần Postgres trong Docker) |
-| `pnpm test:unit`    | Chỉ unit test, không cần DB                              |
-| `pnpm db:generate`  | Sinh migration từ schema Drizzle                         |
-| `pnpm db:migrate`   | Áp migration vào DB                                      |
-| `pnpm db:studio`    | Drizzle Studio: xem và sửa DB trên trình duyệt           |
-| `pnpm lint`         | oxlint                                                   |
-| `pnpm format`       | oxfmt                                                    |
-| `pnpm typecheck`    | Kiểm tra kiểu                                            |
-| `pnpm build`        | Build production                                         |
+| Lệnh                | Mô tả                                                                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`          | Dev server                                                                                                                                                  |
+| `pnpm tunnel`       | Mở tunnel HTTPS cho webhook Zalo                                                                                                                            |
+| `pnpm zalo:webhook` | Đăng ký webhook của bot Zalo                                                                                                                                |
+| `pnpm admin:grant`  | Cấp quyền admin (và bỏ chặn nếu đang bị chặn) sau khi đăng nhập lần đầu: `pnpm admin:grant <email>`; thêm `DATABASE_URL=…` phía trước để trỏ vào production |
+| `pnpm test`         | Chạy toàn bộ test: unit + DB (cần Postgres trong Docker)                                                                                                    |
+| `pnpm test:unit`    | Chỉ unit test, không cần DB                                                                                                                                 |
+| `pnpm db:generate`  | Sinh migration từ schema Drizzle                                                                                                                            |
+| `pnpm db:migrate`   | Áp migration vào DB                                                                                                                                         |
+| `pnpm db:studio`    | Drizzle Studio: xem và sửa DB trên trình duyệt                                                                                                              |
+| `pnpm lint`         | oxlint                                                                                                                                                      |
+| `pnpm format`       | oxfmt                                                                                                                                                       |
+| `pnpm typecheck`    | Kiểm tra kiểu                                                                                                                                               |
+| `pnpm build`        | Build production                                                                                                                                            |

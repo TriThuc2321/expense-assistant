@@ -70,7 +70,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     applicationName: appName,
-    // Private, allowlisted app: keep every page out of search results.
+    // Private app: keep every page out of search results.
     robots: { index: false, follow: false },
     openGraph: {
       type: 'website',

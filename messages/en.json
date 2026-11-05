@@ -23,7 +23,7 @@
     "continueWithGoogle": "Continue with Google",
     "footer": "Your data syncs between phone and computer.",
     "errors": {
-      "not_invited": "This email hasn’t been invited to Sổ Chi",
+      "blocked": "This account has been blocked",
       "google_login_failed": "Google sign-in failed. Please try again."
     }
   },
@@ -33,7 +33,8 @@
     "categories": "Categories",
     "settings": "Settings",
     "main": "Main navigation",
-    "addTransaction": "Add transaction"
+    "addTransaction": "Add transaction",
+    "users": "Users"
   },
   "categories": {
     "title": "Add category",
@@ -133,13 +134,40 @@
       "unlinked": "Zalo unlinked"
     }
   },
+  "admin": {
+    "users": {
+      "you": "You",
+      "actions": "User actions",
+      "roleAdmin": "Admin",
+      "roleUser": "User",
+      "statusActive": "Active",
+      "statusBlocked": "Blocked",
+      "joined": "Joined {date}",
+      "makeAdmin": "Make admin",
+      "removeAdmin": "Remove admin",
+      "block": "Block",
+      "unblock": "Unblock",
+      "delete": "Delete",
+      "blockTitle": "Block {name}?",
+      "blockBody": "They’ll be signed out and can’t use the app or Zalo bot until unblocked.",
+      "deleteTitle": "Delete {name}?",
+      "deleteBody": "All of {name}’s data will be removed. This can’t be undone.",
+      "roleChanged": "Role updated",
+      "blocked": "User blocked",
+      "unblocked": "User unblocked",
+      "deleted": "User deleted"
+    }
+  },
   "errors": {
     "not_found": "Not found",
     "invalid_category": "Invalid category",
     "duplicate_name": "That name already exists",
     "invalid_image": "That image didn’t work, please try another",
     "no_total": "Couldn’t read an amount, please enter it by hand",
+    "ai_limit_reached": "You’ve reached today’s limit for reading images. Try again tomorrow or enter it by hand.",
     "invalid_input": "Invalid input",
+    "forbidden": "You don’t have permission to do that",
+    "cannot_modify_self": "You can’t change your own account here",
     "unknown": "Something went wrong, please try again"
   }
 }
