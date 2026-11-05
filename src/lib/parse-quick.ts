@@ -83,25 +83,45 @@ function resolveSlug(slug: string): string {
   return root ? root.children[0].slug : slug;
 }
 
+// One comma stays a decimal ("1,5tr"); only repeated groups mean thousands.
+// The lookahead keeps "3 kg" and "3 trứng" from reading as 3k and 3tr, while
+// "5tr2" still counts as a unit because only a letter blocks it.
+const AMOUNT =
+  /(\d{1,3}(?:\.\d{3})+|\d{1,3}(?:,\d{3}){2,}|\d+(?:[.,]\d+)?)\s*(?:(nghìn|ngàn|triệu|tr|củ|k)(?!\p{L}))?/gu;
+
+function toVnd(digits: string, unit: string): number {
+  const token = /^\d{1,3}(?:(?:\.\d{3})+|(?:,\d{3}){2,})$/.test(digits)
+    ? digits.replace(/[.,]/g, '')
+    : digits.replace(',', '.');
+  const n = parseFloat(token);
+  if (/nghìn|ngàn|k/.test(unit)) return n * 1000;
+  if (/triệu|tr|củ/.test(unit)) return n * 1e6;
+  return n < 1000 ? n * 1000 : n;
+}
+
+// A message can hold quantities too ("2 ly cà phê 45k"). A unit marks the
+// amount; without one, the amount is the largest number, not the first.
+function findAmount(low: string) {
+  const found = Array.from(low.matchAll(AMOUNT), (m) => ({
+    value: toVnd(m[1], m[2] ?? ''),
+    hasUnit: m[2] !== undefined,
+    index: m.index,
+    end: m.index + m[0].length,
+  }));
+  if (found.length === 0) return null;
+  return (
+    found.find((a) => a.hasUnit) ??
+    found.reduce((max, a) => (a.value > max.value ? a : max))
+  );
+}
+
 export function parseQuick(text: string, today: string): QuickParse | null {
   const s = text.normalize('NFC').trim();
   const low = s.toLowerCase();
-  const m = low.match(
-    /(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)\s*(nghìn|ngàn|triệu|tr|củ|k)?/,
-  );
-  if (!m) return null;
+  const found = findAmount(low);
+  if (!found || !found.value) return null;
 
-  const token = /^\d{1,3}(\.\d{3})+$/.test(m[1])
-    ? m[1].replace(/\./g, '')
-    : m[1].replace(',', '.');
-  let n = parseFloat(token);
-  const u = m[2] ?? '';
-  if (/nghìn|ngàn|k/.test(u)) n *= 1000;
-  else if (/triệu|tr|củ/.test(u)) n *= 1e6;
-  else if (n < 1000) n *= 1000;
-  if (!n) return null;
-
-  let rest = (s.slice(0, m.index) + ' ' + s.slice((m.index ?? 0) + m[0].length))
+  let rest = (s.slice(0, found.index) + ' ' + s.slice(found.end))
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -138,7 +158,7 @@ export function parseQuick(text: string, today: string): QuickParse | null {
 
   return {
     type,
-    amount: Math.round(n),
+    amount: Math.round(found.value),
     categorySlug: slug,
     store,
     note: upperFirst(rest) || childName(slug),

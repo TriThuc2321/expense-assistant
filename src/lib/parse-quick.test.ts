@@ -90,3 +90,49 @@ describe('isQuestion', () => {
     expect(isQuestion('tiêu hết 5k'.normalize('NFD'))).toBe(true);
   });
 });
+
+describe('parseQuick amount selection', () => {
+  const TODAY = '2026-11-05';
+  const amount = (text: string) => parseQuick(text, TODAY)?.amount;
+
+  it('prefers the number with a unit over a leading quantity', () => {
+    expect(amount('2 ly cà phê 45k')).toBe(45_000);
+    expect(amount('3 tô phở 1,5tr')).toBe(1_500_000);
+  });
+
+  it('keeps the quantity in the note and removes only the amount', () => {
+    expect(parseQuick('2 ly cà phê 45k', TODAY)?.note).toBe('2 ly cà phê');
+  });
+
+  it('takes the largest number when none has a unit', () => {
+    expect(amount('2 ly cà phê 45.000')).toBe(45_000);
+    expect(amount('2 ly cà phê 45')).toBe(45_000);
+  });
+
+  it('does not read the start of a word as a unit', () => {
+    expect(amount('3 kg thịt 50k')).toBe(50_000);
+    expect(amount('3 trứng 20k')).toBe(20_000);
+    expect(amount('3 kg thịt')).toBe(3_000);
+  });
+
+  it('still accepts a unit directly followed by more digits', () => {
+    expect(amount('xe máy 5tr2')).toBe(5_000_000);
+  });
+
+  it('reads repeated commas as thousands separators', () => {
+    expect(amount('1,500,000 tiền nhà')).toBe(1_500_000);
+    expect(amount('tiền nhà 12,500,000')).toBe(12_500_000);
+    expect(parseQuick('1,500,000 tiền nhà', TODAY)?.note).toBe('Tiền nhà');
+  });
+
+  it('keeps a single comma working as before', () => {
+    expect(amount('phở 1,5tr')).toBe(1_500_000);
+    expect(amount('phở 1,250tr')).toBe(1_250_000);
+    expect(amount('phở 1,500')).toBe(1_500);
+    expect(amount('phở 100,000')).toBe(100_000);
+  });
+
+  it('keeps the first of two amounts with units', () => {
+    expect(amount('cơm 50k tiền tip 10k')).toBe(50_000);
+  });
+});
