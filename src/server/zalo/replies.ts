@@ -25,6 +25,7 @@ const HINT = (cmd: string) => `<p><i>Gõ <b>${cmd}</b> để hủy</i></p>`;
 export const REPLY = {
   noAmount: `<p>${color('orange', '⚠ Mình chưa hiểu số tiền.')}</p><p>Thử: <b>ăn phở 45k</b></p>`,
   noTotal: `<p>${color('orange', '⚠ Mình không đọc được tổng tiền')}, bạn gõ tay giúp nhé</p>`,
+  aiLimit: `<p>${color('orange', '⚠ Hôm nay bạn đã hết lượt đọc ảnh')}</p><p>Mai thử lại, hoặc gõ tay giúp mình nhé</p>`,
   imageError: `<p>${color('orange', '⚠ Ảnh lỗi')}, gửi lại giúp mình nhé</p>`,
   error: `<p>${color('red', '✕ Có lỗi')}, thử lại sau nhé</p>`,
   nothingToUndo: `<p>${color('yellow', 'Không có giao dịch nào để hoàn tác')}</p>`,

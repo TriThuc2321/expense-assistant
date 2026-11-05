@@ -7,7 +7,9 @@ import { parseText } from '@/server/ai/parse-text';
 import type { ReceiptMediaType } from './receipts';
 import type { TxInput } from './transactions';
 
+import { consumeAiCall } from './ai-usage';
 import { listCategories, resolveCategorySlug } from './categories';
+import { ServiceError } from './errors';
 import { quickParseToInput } from './quick-entry';
 
 const MAX_TEXT = 200;
@@ -46,6 +48,7 @@ async function refineWithAi(
 ): Promise<TxInput> {
   const categories = await loadAiCategories(userId);
   if (categories.length === 0) return input;
+  if (!(await consumeAiCall(userId, today))) return input;
 
   let ai: Awaited<ReturnType<typeof parseText>> = null;
   try {
@@ -72,6 +75,9 @@ export async function receiptToInputs(
 ): Promise<TxInput[]> {
   const categories = await loadAiCategories(userId);
   if (categories.length === 0) return [];
+  if (!(await consumeAiCall(userId, today))) {
+    throw new ServiceError('ai_limit_reached');
+  }
 
   const receipt = await parseReceipt(image.bytes, image.mediaType, {
     today,

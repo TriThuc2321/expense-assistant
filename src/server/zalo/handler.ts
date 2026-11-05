@@ -1,5 +1,6 @@
 import { todayVn } from '@/lib/dates';
 import { isQuestion } from '@/lib/parse-quick';
+import { ServiceError } from '@/server/services/errors';
 import { MAX_CLAUDE_IMAGE_BYTES } from '@/server/services/receipts';
 import { receiptToInputs, textToInput } from '@/server/services/smart-entry';
 import {
@@ -102,7 +103,15 @@ async function handleImage(
     return REPLY.imageError;
   }
 
-  const inputs = await receiptToInputs(userId, image, today);
+  let inputs: Awaited<ReturnType<typeof receiptToInputs>>;
+  try {
+    inputs = await receiptToInputs(userId, image, today);
+  } catch (error) {
+    if (error instanceof ServiceError && error.code === 'ai_limit_reached') {
+      return REPLY.aiLimit;
+    }
+    throw error;
+  }
   if (inputs.length === 0) return REPLY.noTotal;
 
   const txs = await createTransactions(userId, inputs, 'zalo');

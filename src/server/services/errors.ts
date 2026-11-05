@@ -5,7 +5,8 @@ export type ServiceErrorCode =
   | 'duplicate_name'
   | 'invalid_image'
   | 'no_total'
-  | 'cannot_modify_self';
+  | 'cannot_modify_self'
+  | 'ai_limit_reached';
 
 export class ServiceError extends Error {
   code: ServiceErrorCode;

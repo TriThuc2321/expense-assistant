@@ -5,6 +5,7 @@ import type { TxInput, TxView } from '@/server/services/transactions';
 
 import { parseReceipt } from '@/server/ai/parse-receipt';
 import { parseText } from '@/server/ai/parse-text';
+import { consumeAiCall } from '@/server/services/ai-usage';
 import {
   listCategories,
   resolveCategorySlug,
@@ -55,6 +56,7 @@ vi.mock('@/server/services/receipts', () => ({
   MAX_CLAUDE_IMAGE_BYTES: 5 * 1024 * 1024,
 }));
 vi.mock('@/server/ai/parse-text', () => ({ parseText: vi.fn() }));
+vi.mock('@/server/services/ai-usage', () => ({ consumeAiCall: vi.fn() }));
 vi.mock('@/server/ai/parse-receipt', () => ({ parseReceipt: vi.fn() }));
 
 const NOW = new Date('2026-11-03T05:00:00Z');
@@ -115,6 +117,7 @@ function sent(): [string, string][] {
 beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(findActiveUserIdByZaloId).mockResolvedValue(USER);
+  vi.mocked(consumeAiCall).mockResolvedValue(true);
   vi.mocked(quickParseToInput).mockImplementation(async (_userId, p) => ({
     type: p.type,
     amount: p.amount,
@@ -613,6 +616,38 @@ describe('handleZaloUpdate', () => {
       },
       'zalo',
     );
+  });
+
+  it('replies the limit message for an image at the cap and saves nothing', async () => {
+    vi.mocked(consumeAiCall).mockResolvedValue(false);
+
+    await handleZaloUpdate(
+      update({ event: 'image', text: null, photoUrl: 'https://x/r.jpg' }),
+      NOW,
+    );
+
+    expect(consumeAiCall).toHaveBeenCalledWith(USER, TODAY);
+    expect(parseReceipt).not.toHaveBeenCalled();
+    expect(createTransactions).not.toHaveBeenCalled();
+    expect(sent()).toEqual([['C', REPLY.aiLimit]]);
+  });
+
+  it('saves a low-confidence text with the keyword input at the cap', async () => {
+    vi.mocked(consumeAiCall).mockResolvedValue(false);
+
+    await handleZaloUpdate(update({ text: 'món lạ 120k' }), NOW);
+
+    const input: TxInput = {
+      type: 'out',
+      amount: 120000,
+      categoryId: 'id:shop.goods',
+      store: null,
+      note: 'Món lạ',
+      date: TODAY,
+    };
+    expect(parseText).not.toHaveBeenCalled();
+    expect(createTransaction).toHaveBeenCalledWith(USER, input, 'zalo');
+    expect(sent()).toEqual([['C', confirmReply(view(input), TODAY)]]);
   });
 
   it('refuses images too large for Claude', async () => {

@@ -139,6 +139,7 @@
     "duplicate_name": "That name already exists",
     "invalid_image": "That image didn’t work, please try another",
     "no_total": "Couldn’t read an amount, please enter it by hand",
+    "ai_limit_reached": "You’ve reached today’s limit for reading images. Try again tomorrow or enter it by hand.",
     "invalid_input": "Invalid input",
     "forbidden": "You don’t have permission to do that",
     "cannot_modify_self": "You can’t change your own account here",
