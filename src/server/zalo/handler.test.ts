@@ -16,7 +16,7 @@ import {
   undoLatestZaloTransaction,
 } from '@/server/services/transactions';
 import {
-  findAllowedUserIdByZaloId,
+  findActiveUserIdByZaloId,
   redeemLinkCode,
 } from '@/server/services/zalo-link';
 
@@ -37,7 +37,7 @@ vi.mock('./client', () => ({ sendMessage: vi.fn() }));
 vi.mock('./download', () => ({ downloadImage: vi.fn() }));
 vi.mock('@/server/services/zalo-link', () => ({
   redeemLinkCode: vi.fn(),
-  findAllowedUserIdByZaloId: vi.fn(),
+  findActiveUserIdByZaloId: vi.fn(),
 }));
 vi.mock('@/server/services/transactions', () => ({
   createTransaction: vi.fn(),
@@ -114,7 +114,7 @@ function sent(): [string, string][] {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.mocked(findAllowedUserIdByZaloId).mockResolvedValue(USER);
+  vi.mocked(findActiveUserIdByZaloId).mockResolvedValue(USER);
   vi.mocked(quickParseToInput).mockImplementation(async (_userId, p) => ({
     type: p.type,
     amount: p.amount,
@@ -173,21 +173,21 @@ describe('handleZaloUpdate', () => {
   });
 
   it('asks unlinked users to link first', async () => {
-    vi.mocked(findAllowedUserIdByZaloId).mockResolvedValue(null);
+    vi.mocked(findActiveUserIdByZaloId).mockResolvedValue(null);
 
     await handleZaloUpdate(update({ fromId: 'stranger' }), NOW);
 
-    expect(findAllowedUserIdByZaloId).toHaveBeenCalledWith('stranger');
+    expect(findActiveUserIdByZaloId).toHaveBeenCalledWith('stranger');
     expect(createTransaction).not.toHaveBeenCalled();
     expect(sent()).toEqual([['C', REPLY.notLinked]]);
   });
 
-  it('treats a linked user removed from the allowlist as not linked', async () => {
-    vi.mocked(findAllowedUserIdByZaloId).mockResolvedValue(null);
+  it('treats a blocked user as not linked', async () => {
+    vi.mocked(findActiveUserIdByZaloId).mockResolvedValue(null);
 
     await handleZaloUpdate(update({ text: 'ăn phở 45k' }), NOW);
 
-    expect(findAllowedUserIdByZaloId).toHaveBeenCalledWith('F');
+    expect(findActiveUserIdByZaloId).toHaveBeenCalledWith('F');
     expect(createTransaction).not.toHaveBeenCalled();
     expect(sent()).toEqual([['C', REPLY.notLinked]]);
   });
@@ -727,7 +727,7 @@ describe('handleZaloUpdate', () => {
   it('ignores stickers silently', async () => {
     await handleZaloUpdate(update({ event: 'other', text: null }), NOW);
 
-    expect(findAllowedUserIdByZaloId).not.toHaveBeenCalled();
+    expect(findActiveUserIdByZaloId).not.toHaveBeenCalled();
     expect(sendMessage).not.toHaveBeenCalled();
   });
 });

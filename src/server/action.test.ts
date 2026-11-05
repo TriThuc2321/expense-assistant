@@ -15,7 +15,7 @@ const schema = z.object({ n: z.number() });
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(requireSession).mockResolvedValue({
-    user: { id: 'u1', name: 'A', email: 'a@x.com', image: null },
+    user: { id: 'u1', name: 'A', email: 'a@x.com', image: null, role: 'user' },
   });
 });
 

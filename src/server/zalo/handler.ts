@@ -8,7 +8,7 @@ import {
   undoLatestZaloTransaction,
 } from '@/server/services/transactions';
 import {
-  findAllowedUserIdByZaloId,
+  findActiveUserIdByZaloId,
   redeemLinkCode,
 } from '@/server/services/zalo-link';
 
@@ -53,7 +53,7 @@ async function route(update: ZaloUpdate, now: Date): Promise<string | null> {
     return linked ? linkedReply(linked.userName) : REPLY.invalidCode;
   }
 
-  const userId = await findAllowedUserIdByZaloId(update.fromId);
+  const userId = await findActiveUserIdByZaloId(update.fromId);
   if (!userId) return REPLY.notLinked;
 
   const today = todayVn(now);

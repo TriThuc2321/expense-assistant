@@ -2,27 +2,25 @@ import { describe, expect, it } from 'vitest';
 
 import { classifySession } from './session';
 
-const allowed = new Set(['ok@x.com']);
-const withEmail = (email: string) => ({
-  user: { email },
-  session: { id: 's1' },
-});
-
 describe('classifySession', () => {
-  it('returns ok for an allowlisted email', () => {
-    const s = withEmail('OK@x.com');
-    expect(classifySession(s, allowed)).toEqual({ status: 'ok', session: s });
-  });
-
-  it('returns not_invited for an email removed from the list', () => {
-    const s = withEmail('removed@x.com');
-    expect(classifySession(s, allowed)).toEqual({
-      status: 'not_invited',
-      session: s,
+  it('returns ok for an unblocked user', () => {
+    expect(classifySession({ user: { blockedAt: null } })).toEqual({
+      status: 'ok',
+      session: expect.anything(),
     });
   });
 
+  it('returns blocked for a blocked user', () => {
+    expect(classifySession({ user: { blockedAt: new Date() } })).toMatchObject({
+      status: 'blocked',
+    });
+  });
+
+  it('treats a missing blockedAt as ok', () => {
+    expect(classifySession({ user: {} })).toMatchObject({ status: 'ok' });
+  });
+
   it('returns none without a session', () => {
-    expect(classifySession(null, allowed)).toEqual({ status: 'none' });
+    expect(classifySession(null)).toEqual({ status: 'none' });
   });
 });

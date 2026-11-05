@@ -1,8 +1,6 @@
 import { and, eq, isNull, lt, or } from 'drizzle-orm';
 import { randomInt } from 'node:crypto';
 
-import { env } from '@/configs/env';
-import { isEmailAllowed } from '@/server/auth/allowlist';
 import { getDb } from '@/server/db';
 import {
   user,
@@ -62,6 +60,12 @@ export async function redeemLinkCode(
       .for('update');
     if (!row || row.usedAt !== null || row.expiresAt <= now) return null;
 
+    const [owner] = await tx
+      .select({ blockedAt: user.blockedAt })
+      .from(user)
+      .where(eq(user.id, row.userId));
+    if (owner?.blockedAt) return null;
+
     await tx
       .update(zaloLinkCodes)
       .set({ usedAt: now })
@@ -115,15 +119,15 @@ export async function findUserIdByZaloId(
   return row?.userId ?? null;
 }
 
-export async function findAllowedUserIdByZaloId(
+export async function findActiveUserIdByZaloId(
   zaloUserId: string,
 ): Promise<string | null> {
   const [row] = await getDb()
-    .select({ userId: zaloLinks.userId, email: user.email })
+    .select({ userId: zaloLinks.userId, blockedAt: user.blockedAt })
     .from(zaloLinks)
     .innerJoin(user, eq(user.id, zaloLinks.userId))
     .where(eq(zaloLinks.zaloUserId, zaloUserId));
-  if (!row || !isEmailAllowed(row.email, env().ALLOWED_EMAILS)) return null;
+  if (!row || row.blockedAt) return null;
   return row.userId;
 }
 

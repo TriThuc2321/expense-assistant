@@ -23,7 +23,7 @@
     "continueWithGoogle": "Tiếp tục với Google",
     "footer": "Dữ liệu đồng bộ giữa điện thoại và máy tính.",
     "errors": {
-      "not_invited": "Email này chưa được mời dùng Sổ Chi",
+      "blocked": "Tài khoản này đã bị khóa",
       "google_login_failed": "Đăng nhập Google thất bại. Vui lòng thử lại."
     }
   },

@@ -28,7 +28,6 @@ pnpm dev
 
 - `BETTER_AUTH_SECRET`: tạo bằng `openssl rand -base64 32`.
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: tạo OAuth client trên Google Cloud Console và thêm redirect URI `http://localhost:3000/api/auth/callback/google`.
-- `ALLOWED_EMAILS`: danh sách email được phép đăng nhập, cách nhau bằng dấu phẩy, không phân biệt hoa thường. Email không có trong danh sách bị chặn.
 - Các biến Zalo, Anthropic, R2 và `CRON_SECRET` là tùy chọn cho đến Phase 3, chưa cần để chạy app.
 
 Webhook Zalo cần URL HTTPS công khai, dev dùng ngrok với domain tĩnh (làm một lần):

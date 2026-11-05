@@ -23,7 +23,7 @@
     "continueWithGoogle": "Continue with Google",
     "footer": "Your data syncs between phone and computer.",
     "errors": {
-      "not_invited": "This email hasn’t been invited to Sổ Chi",
+      "blocked": "This account has been blocked",
       "google_login_failed": "Google sign-in failed. Please try again."
     }
   },
