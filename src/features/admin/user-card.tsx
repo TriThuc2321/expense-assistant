@@ -30,7 +30,9 @@ export function UserCard({
   const t = useTranslations();
   const format = useFormatter();
   const toast = useToast();
-  const [confirming, setConfirming] = useState<Confirming | null>(null);
+  // `kind` outlives `open` so the dialog text doesn't change during its exit animation.
+  const [kind, setKind] = useState<Confirming>('block');
+  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const inFlight = useRef(false);
 
@@ -53,7 +55,7 @@ export function UserCard({
     } finally {
       inFlight.current = false;
       setBusy(false);
-      setConfirming(null);
+      setOpen(false);
     }
     if (!res.ok) {
       toast.show({ title: t(`errors.${res.error}`) });
@@ -70,17 +72,23 @@ export function UserCard({
     );
   const unblock = () =>
     run(() => unblockUserAction({ id: user.id }), 'unblocked');
-  const confirm = () =>
-    confirming === 'block'
-      ? run(() => blockUserAction({ id: user.id }), 'blocked')
-      : run(() => deleteUserAction({ id: user.id }), 'deleted');
+  const ask = (next: Confirming) => {
+    setKind(next);
+    setOpen(true);
+  };
+  const confirm = () => {
+    if (!open) return;
+    if (kind === 'block')
+      return run(() => blockUserAction({ id: user.id }), 'blocked');
+    return run(() => deleteUserAction({ id: user.id }), 'deleted');
+  };
 
   const onAction = (key: React.Key) => {
     if (key === 'role') void toggleRole();
     else if (key === 'block') {
       if (isBlocked) void unblock();
-      else setConfirming('block');
-    } else if (key === 'delete') setConfirming('delete');
+      else ask('block');
+    } else if (key === 'delete') ask('delete');
   };
 
   return (
@@ -126,25 +134,37 @@ export function UserCard({
         </div>
         {isSelf ? null : (
           <Dropdown>
-            <Dropdown.Trigger>
-              <Button
-                isIconOnly
-                variant="tertiary"
-                size="sm"
-                isDisabled={busy}
-                aria-label={t('admin.users.actions')}
-              >
-                <Ellipsis size={18} strokeWidth={1.75} />
-              </Button>
-            </Dropdown.Trigger>
+            <Button
+              isIconOnly
+              variant="tertiary"
+              size="sm"
+              isDisabled={busy}
+              aria-label={t('admin.users.actions')}
+            >
+              <Ellipsis size={18} strokeWidth={1.75} />
+            </Button>
             <Dropdown.Popover>
               <Dropdown.Menu onAction={onAction}>
-                <Dropdown.Item id="role" textValue={t('admin.users.makeAdmin')}>
+                <Dropdown.Item
+                  id="role"
+                  textValue={
+                    isAdmin
+                      ? t('admin.users.removeAdmin')
+                      : t('admin.users.makeAdmin')
+                  }
+                >
                   {isAdmin
                     ? t('admin.users.removeAdmin')
                     : t('admin.users.makeAdmin')}
                 </Dropdown.Item>
-                <Dropdown.Item id="block" textValue={t('admin.users.block')}>
+                <Dropdown.Item
+                  id="block"
+                  textValue={
+                    isBlocked
+                      ? t('admin.users.unblock')
+                      : t('admin.users.block')
+                  }
+                >
                   {isBlocked
                     ? t('admin.users.unblock')
                     : t('admin.users.block')}
@@ -163,9 +183,9 @@ export function UserCard({
       </div>
 
       <AlertDialog
-        isOpen={confirming !== null}
-        onOpenChange={(open) => {
-          if (!open && !inFlight.current) setConfirming(null);
+        isOpen={open}
+        onOpenChange={(next) => {
+          if (!next && !inFlight.current) setOpen(false);
         }}
       >
         <AlertDialog.Backdrop>
@@ -174,14 +194,14 @@ export function UserCard({
               <AlertDialog.Header>
                 <AlertDialog.Icon status="danger" />
                 <AlertDialog.Heading>
-                  {confirming === 'block'
+                  {kind === 'block'
                     ? t('admin.users.blockTitle', { name: user.name })
                     : t('admin.users.deleteTitle', { name: user.name })}
                 </AlertDialog.Heading>
               </AlertDialog.Header>
               <AlertDialog.Body>
                 <p>
-                  {confirming === 'block'
+                  {kind === 'block'
                     ? t('admin.users.blockBody')
                     : t('admin.users.deleteBody', { name: user.name })}
                 </p>
@@ -195,7 +215,7 @@ export function UserCard({
                   isDisabled={busy}
                   onPress={() => void confirm()}
                 >
-                  {confirming === 'block'
+                  {kind === 'block'
                     ? t('admin.users.block')
                     : t('admin.users.delete')}
                 </Button>
