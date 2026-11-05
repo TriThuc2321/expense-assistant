@@ -19,6 +19,7 @@ import {
   recentTransactions,
   restoreTransaction,
   softDeleteTransaction,
+  softDeleteTransactions,
   undoLatestZaloTransaction,
   updateTransaction,
 } from './transactions';
@@ -113,6 +114,23 @@ describe('transactions', () => {
     await expect(restoreTransaction(other.u.id, tx.id)).rejects.toMatchObject({
       code: 'not_found',
     });
+  });
+
+  it('batch soft-delete skips rows already deleted', async () => {
+    const { u, out } = await setup();
+    const a = await createTransaction(u.id, input(out.id));
+    const b = await createTransaction(u.id, input(out.id));
+    await softDeleteTransaction(u.id, a.id);
+    await softDeleteTransactions(u.id, [a.id, b.id]);
+    expect(await listTransactions(u.id, {})).toHaveLength(0);
+  });
+
+  it("batch soft-delete leaves another user's transactions alone", async () => {
+    const { u, out } = await setup();
+    const other = await setup();
+    const tx = await createTransaction(u.id, input(out.id));
+    await softDeleteTransactions(other.u.id, [tx.id]);
+    expect(await listTransactions(u.id, {})).toHaveLength(1);
   });
 
   it('filters by root category including children, amount range, store substring', async () => {

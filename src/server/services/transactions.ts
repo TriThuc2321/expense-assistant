@@ -258,6 +258,24 @@ export async function softDeleteTransaction(
   if (updated.length === 0) throw new ServiceError('not_found');
 }
 
+// Unlike the single delete, an id already gone is not an error: undoing a batch
+// should still remove the rest if one row was deleted by hand in the meantime.
+export async function softDeleteTransactions(
+  userId: string,
+  ids: string[],
+): Promise<void> {
+  await getDb()
+    .update(transactions)
+    .set({ deletedAt: new Date() })
+    .where(
+      and(
+        inArray(transactions.id, ids),
+        eq(transactions.userId, userId),
+        isNull(transactions.deletedAt),
+      ),
+    );
+}
+
 export async function restoreTransaction(
   userId: string,
   id: string,

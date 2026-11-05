@@ -78,6 +78,10 @@
     "quickTitle": "Nhập nhanh hoặc hỏi",
     "quickPlaceholder": "ăn phở 45k · tháng này tiêu bao nhiêu cho cà phê?",
     "edit": "Chỉnh",
+    "scanImage": "Quét ảnh hóa đơn",
+    "scanning": "Đang đọc ảnh…",
+    "scanAdded": "Đã thêm {count} giao dịch",
+    "aiPicksCategory": "AI sẽ chọn danh mục khi lưu",
     "askSoon": "Hỏi đáp sắp có",
     "spent": "Đã chi {month}",
     "vsRange": "so với {range}",
@@ -133,6 +137,8 @@
     "not_found": "Không tìm thấy dữ liệu",
     "invalid_category": "Danh mục không hợp lệ",
     "duplicate_name": "Tên này đã có",
+    "invalid_image": "Ảnh lỗi, thử ảnh khác giúp mình nhé",
+    "no_total": "Không đọc được số tiền, bạn nhập tay giúp nhé",
     "invalid_input": "Dữ liệu chưa hợp lệ",
     "unknown": "Có lỗi, thử lại sau nhé"
   }
