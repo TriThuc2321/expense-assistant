@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { pruneAiUsage } from '@/server/services/ai-usage';
 import { pruneZaloData } from '@/server/services/zalo-link';
 
 import { GET } from './route';
 
+vi.mock('@/server/services/ai-usage', () => ({ pruneAiUsage: vi.fn() }));
 vi.mock('@/server/services/zalo-link', () => ({ pruneZaloData: vi.fn() }));
 
 const SECRET = process.env.CRON_SECRET!;
@@ -27,11 +29,13 @@ describe('GET /api/cron/cleanup', () => {
       expect((await GET(req(header))).status).toBe(401);
     }
     expect(pruneZaloData).not.toHaveBeenCalled();
+    expect(pruneAiUsage).not.toHaveBeenCalled();
   });
 
   it('prunes with the right secret', async () => {
     const res = await GET(req(`Bearer ${SECRET}`));
     expect(res.status).toBe(200);
     expect(pruneZaloData).toHaveBeenCalledOnce();
+    expect(pruneAiUsage).toHaveBeenCalledOnce();
   });
 });
