@@ -1,5 +1,6 @@
 import { Chip } from '@heroui/react';
 import { getFormatter, getTranslations } from 'next-intl/server';
+import Link from 'next/link';
 
 import { Money } from '@/components/ui/money';
 import { formatVnd } from '@/lib/format';
@@ -61,6 +62,12 @@ export async function StatCards({
             <span>{t('vsRange', { range: lastRangeLabel(today) })}</span>
           </div>
         ) : null}
+        <Link
+          href="/analyze"
+          className="type-caption text-accent-text mt-auto self-start hover:underline"
+        >
+          {t('viewAnalytics')}
+        </Link>
       </div>
       <div className={CARD}>
         <div className="type-overline text-subtle">{t('income')}</div>

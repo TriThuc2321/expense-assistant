@@ -30,6 +30,7 @@
   "nav": {
     "home": "Overview",
     "transactions": "Transactions",
+    "analyze": "Analytics",
     "categories": "Categories",
     "settings": "Settings",
     "main": "Main navigation",
@@ -95,7 +96,8 @@
     "zaloLinkedBody": "Tag @{bot} in a group or message it: “ăn phở 45k”, or send a receipt photo.",
     "recent": "Recent",
     "seeAll": "See all",
-    "recentEmpty": "No transactions yet"
+    "recentEmpty": "No transactions yet",
+    "viewAnalytics": "See details →"
   },
   "transactions": {
     "summary": "{count, plural, one {# transaction} other {# transactions}} · spent <sum></sum>",
