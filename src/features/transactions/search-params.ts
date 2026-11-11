@@ -20,6 +20,12 @@ type RawParams = Record<string, string | string[] | undefined>;
 const MAX_MONTHS = 120;
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 const YEAR_RE = /^\d{4}$/;
+// Date.UTC maps years 0-99 to 1900+, and Postgres rejects year 0.
+const MIN_YEAR = 1970;
+
+function saneYear(text: string): boolean {
+  return Number(text.slice(0, 4)) >= MIN_YEAR;
+}
 
 function first(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
@@ -42,10 +48,10 @@ export function parseTxParams(sp: RawParams): TxPageParams {
 
   const params: TxPageParams = { period: 'this', months };
   if (periodRaw === 'last' || periodRaw === 'all') params.period = periodRaw;
-  else if (periodRaw === 'month' && ym && MONTH_RE.test(ym)) {
+  else if (periodRaw === 'month' && ym && MONTH_RE.test(ym) && saneYear(ym)) {
     params.period = 'month';
     params.ym = ym;
-  } else if (periodRaw === 'year' && y && YEAR_RE.test(y)) {
+  } else if (periodRaw === 'year' && y && YEAR_RE.test(y) && saneYear(y)) {
     params.period = 'year';
     params.y = Number(y);
   }

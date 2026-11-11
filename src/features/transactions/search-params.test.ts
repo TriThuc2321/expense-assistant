@@ -93,6 +93,10 @@ describe('specific month or year', () => {
     { period: 'month' },
     { period: 'year', y: 'abc' },
     { period: 'year', y: '2025-01' },
+    { period: 'year', y: '0000' },
+    { period: 'year', y: '0099' },
+    { period: 'month', ym: '0000-01' },
+    { period: 'month', ym: '0050-03' },
   ])('falls back to this month for %o', (sp) => {
     const p = parseTxParams(sp);
     expect(p).toEqual({ period: 'this', months: 1 });
