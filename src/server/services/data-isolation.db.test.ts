@@ -6,6 +6,7 @@ import { getDb } from '@/server/db';
 import { categories } from '@/server/db/schema';
 import { createTestUser, resetDb } from '@/server/db/test-utils';
 
+import { categoryBreakdown, periodSummary, trend } from './analytics';
 import {
   deleteSubcategory,
   ensureDefaultCategories,
@@ -56,6 +57,18 @@ describe('data isolation', () => {
       spentLastSameRange: 0,
       income: 0,
     });
+    const oct = { from: '2026-10-01', to: '2026-10-31' };
+    expect(await periodSummary(b.id, oct, oct)).toEqual({
+      income: 0,
+      expense: 0,
+      prevIncome: 0,
+      prevExpense: 0,
+    });
+    expect(await categoryBreakdown(b.id, 'out', oct)).toEqual([]);
+    const points = await trend(b.id, oct, oct, 'day');
+    expect(points.every((pt) => pt.income === 0 && pt.expense === 0)).toBe(
+      true,
+    );
   });
 
   it("rejects access to another user's transaction and subcategory", async () => {
