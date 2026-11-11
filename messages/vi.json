@@ -115,7 +115,10 @@
     "storePlaceholder": "Highlands, Grab…",
     "clear": "Xóa bộ lọc",
     "loadMore": "Xem thêm",
-    "empty": "Không có giao dịch khớp bộ lọc. Thử bỏ bớt điều kiện."
+    "empty": "Không có giao dịch khớp bộ lọc. Thử bỏ bớt điều kiện.",
+    "periodMonth": "Tháng {month}/{year}",
+    "periodYear": "Năm {year}",
+    "clearPeriod": "Bỏ lọc thời gian"
   },
   "settings": {
     "logout": "Đăng xuất",

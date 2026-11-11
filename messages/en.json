@@ -115,7 +115,10 @@
     "storePlaceholder": "Highlands, Grab…",
     "clear": "Clear filters",
     "loadMore": "Load more",
-    "empty": "No transactions match the filters. Try removing some."
+    "empty": "No transactions match the filters. Try removing some.",
+    "periodMonth": "{month}/{year}",
+    "periodYear": "Year {year}",
+    "clearPeriod": "Clear period"
   },
   "settings": {
     "logout": "Sign out",

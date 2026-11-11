@@ -10,7 +10,7 @@ import {
   TextField,
   cn,
 } from '@heroui/react';
-import { Plus, SlidersHorizontal } from 'lucide-react';
+import { Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -72,6 +72,16 @@ export function TransactionsView({
     });
   };
 
+  const customPeriod =
+    params.period === 'month' && params.ym
+      ? t('periodMonth', {
+          month: Number(params.ym.slice(5, 7)),
+          year: params.ym.slice(0, 4),
+        })
+      : params.period === 'year' && params.y !== undefined
+        ? t('periodYear', { year: String(params.y) })
+        : null;
+
   const hasFieldFilters =
     params.min !== undefined ||
     params.max !== undefined ||
@@ -126,22 +136,39 @@ export function TransactionsView({
           aria-label={t('period')}
           selectionMode="single"
           disallowEmptySelection
-          selectedKeys={[params.period]}
+          selectedKeys={[customPeriod ? 'custom' : params.period]}
           onSelectionChange={(keys) => {
             const [key] = [...keys];
             if (key === undefined) return;
+            if (key === 'custom') return;
             update({
               period: key === 'this' ? undefined : String(key),
               months: undefined,
+              ym: undefined,
+              y: undefined,
             });
           }}
         >
           <TagGroup.List className="flex-wrap">
+            {customPeriod ? <Tag id="custom">{customPeriod}</Tag> : null}
             <Tag id="this">{t('periodThis')}</Tag>
             <Tag id="last">{t('periodLast')}</Tag>
             <Tag id="all">{t('periodAll')}</Tag>
           </TagGroup.List>
         </TagGroup>
+        {customPeriod ? (
+          <Button
+            isIconOnly
+            size="sm"
+            variant="ghost"
+            aria-label={t('clearPeriod')}
+            onPress={() =>
+              update({ period: undefined, ym: undefined, y: undefined })
+            }
+          >
+            <X size={16} strokeWidth={1.75} />
+          </Button>
+        ) : null}
         <span
           aria-hidden
           className="mx-0.5 h-5 w-px bg-[var(--border-subtle)]"
