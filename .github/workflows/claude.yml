@@ -66,4 +66,4 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           additional_permissions: |
             actions: read
-          claude_args: '--allowedTools "Read,Grep,Glob,Edit,Write,Bash(pnpm install:*),Bash(pnpm test:*),Bash(pnpm test:unit:*),Bash(pnpm vitest:*),Bash(pnpm lint:*),Bash(pnpm lint:fix:*),Bash(pnpm format:*),Bash(pnpm typecheck:*),Bash(pnpm build:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr checks:*),Bash(gh run view:*),Bash(gh api:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(git fetch:*)"'
+          claude_args: '--allowedTools "Read,Grep,Glob,Edit,Write,Bash(pnpm install:*),Bash(pnpm test:*),Bash(pnpm test:unit:*),Bash(pnpm vitest:*),Bash(pnpm lint:*),Bash(pnpm lint:fix:*),Bash(pnpm format:*),Bash(pnpm typecheck:*),Bash(pnpm build:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr checks:*),Bash(gh run view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(git fetch:*)"'
