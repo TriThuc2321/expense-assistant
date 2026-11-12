@@ -5,7 +5,7 @@ export type Delta = { direction: 'up' | 'down' | 'flat'; percent: number };
 export function spentDelta(spent: number, previous: number): Delta | null {
   if (previous <= 0) return null;
   const percent = Math.round((Math.abs(spent - previous) / previous) * 100);
-  if (spent === previous) return { direction: 'flat', percent: 0 };
+  if (percent === 0) return { direction: 'flat', percent: 0 };
   return { direction: spent > previous ? 'up' : 'down', percent };
 }
 

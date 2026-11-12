@@ -2,10 +2,12 @@ import { z } from 'zod';
 
 import type { TxFilter } from '@/server/services/transactions';
 
-import { addMonths, monthRange, monthStart } from '@/lib/dates';
+import { addMonths, monthRange, monthStart, yearRange } from '@/lib/dates';
 
 export type TxPageParams = {
-  period: 'this' | 'last' | 'all';
+  period: 'this' | 'last' | 'all' | 'month' | 'year';
+  ym?: string;
+  y?: number;
   cat?: string;
   min?: number;
   max?: number;
@@ -16,6 +18,14 @@ export type TxPageParams = {
 type RawParams = Record<string, string | string[] | undefined>;
 
 const MAX_MONTHS = 120;
+const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+const YEAR_RE = /^\d{4}$/;
+// Date.UTC maps years 0-99 to 1900+, and Postgres rejects year 0.
+const MIN_YEAR = 1970;
+
+function saneYear(text: string): boolean {
+  return Number(text.slice(0, 4)) >= MIN_YEAR;
+}
 
 function first(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
@@ -29,14 +39,22 @@ function amount(v: string | undefined): number | undefined {
 
 export function parseTxParams(sp: RawParams): TxPageParams {
   const periodRaw = first(sp.period);
-  const period =
-    periodRaw === 'last' || periodRaw === 'all' ? periodRaw : 'this';
+  const ym = first(sp.ym);
+  const y = first(sp.y);
   const monthsNum = Math.trunc(Number(first(sp.months)));
   const months = Number.isFinite(monthsNum)
     ? Math.min(Math.max(monthsNum, 1), MAX_MONTHS)
     : 1;
 
-  const params: TxPageParams = { period, months };
+  const params: TxPageParams = { period: 'this', months };
+  if (periodRaw === 'last' || periodRaw === 'all') params.period = periodRaw;
+  else if (periodRaw === 'month' && ym && MONTH_RE.test(ym) && saneYear(ym)) {
+    params.period = 'month';
+    params.ym = ym;
+  } else if (periodRaw === 'year' && y && YEAR_RE.test(y) && saneYear(y)) {
+    params.period = 'year';
+    params.y = Number(y);
+  }
   const cat = z.uuid().safeParse(first(sp.cat));
   if (cat.success) params.cat = cat.data;
   const min = amount(first(sp.min));
@@ -52,6 +70,10 @@ export function toTxFilter(p: TxPageParams, today: string): TxFilter {
   const filter: TxFilter = {};
   if (p.period === 'this') {
     Object.assign(filter, monthRange(today));
+  } else if (p.period === 'month' && p.ym) {
+    Object.assign(filter, monthRange(`${p.ym}-01`));
+  } else if (p.period === 'year' && p.y !== undefined) {
+    Object.assign(filter, yearRange(p.y));
   } else if (p.period === 'last') {
     Object.assign(filter, monthRange(addMonths(monthStart(today), -1)));
   } else {

@@ -66,3 +66,48 @@ describe('toTxFilter', () => {
     ).toMatchObject({ categoryId: 'c', min: 1, max: 2, store: 's' });
   });
 });
+
+describe('specific month or year', () => {
+  const cat = '3f2b8c1e-6a4d-4b1e-9c3a-1d2e3f4a5b6c';
+
+  it('parses and filters a specific month', () => {
+    const p = parseTxParams({ period: 'month', ym: '2026-08' });
+    expect(p).toEqual({ period: 'month', ym: '2026-08', months: 1 });
+    expect(toTxFilter(p, '2026-11-11')).toEqual({
+      from: '2026-08-01',
+      to: '2026-08-31',
+    });
+  });
+
+  it('parses and filters a specific year', () => {
+    const p = parseTxParams({ period: 'year', y: '2025' });
+    expect(p).toEqual({ period: 'year', y: 2025, months: 1 });
+    expect(toTxFilter(p, '2026-11-11')).toEqual({
+      from: '2025-01-01',
+      to: '2025-12-31',
+    });
+  });
+
+  it.each([
+    { period: 'month', ym: '2026-13' },
+    { period: 'month' },
+    { period: 'year', y: 'abc' },
+    { period: 'year', y: '2025-01' },
+    { period: 'year', y: '0000' },
+    { period: 'year', y: '0099' },
+    { period: 'month', ym: '0000-01' },
+    { period: 'month', ym: '0050-03' },
+  ])('falls back to this month for %o', (sp) => {
+    const p = parseTxParams(sp);
+    expect(p).toEqual({ period: 'this', months: 1 });
+  });
+
+  it('combines a category with a month', () => {
+    const p = parseTxParams({ period: 'month', ym: '2026-08', cat });
+    expect(toTxFilter(p, '2026-11-11')).toEqual({
+      from: '2026-08-01',
+      to: '2026-08-31',
+      categoryId: cat,
+    });
+  });
+});

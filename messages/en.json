@@ -30,6 +30,7 @@
   "nav": {
     "home": "Overview",
     "transactions": "Transactions",
+    "analyze": "Analytics",
     "categories": "Categories",
     "settings": "Settings",
     "main": "Main navigation",
@@ -95,7 +96,8 @@
     "zaloLinkedBody": "Tag @{bot} in a group or message it: “ăn phở 45k”, or send a receipt photo.",
     "recent": "Recent",
     "seeAll": "See all",
-    "recentEmpty": "No transactions yet"
+    "recentEmpty": "No transactions yet",
+    "viewAnalytics": "See details →"
   },
   "transactions": {
     "summary": "{count, plural, one {# transaction} other {# transactions}} · spent <sum></sum>",
@@ -115,7 +117,10 @@
     "storePlaceholder": "Highlands, Grab…",
     "clear": "Clear filters",
     "loadMore": "Load more",
-    "empty": "No transactions match the filters. Try removing some."
+    "empty": "No transactions match the filters. Try removing some.",
+    "periodMonth": "{month}/{year}",
+    "periodYear": "Year {year}",
+    "clearPeriod": "Clear period"
   },
   "settings": {
     "logout": "Sign out",
@@ -169,5 +174,35 @@
     "forbidden": "You don’t have permission to do that",
     "cannot_modify_self": "You can’t change your own account here",
     "unknown": "Something went wrong, please try again"
+  },
+  "analyze": {
+    "title": "Analytics",
+    "month": "Month",
+    "year": "Year",
+    "viewLabel": "View by",
+    "previous": "Previous period",
+    "next": "Next period",
+    "monthLabel": "{month}/{year}",
+    "yearLabel": "{year}",
+    "income": "Income",
+    "expense": "Spending",
+    "net": "Net",
+    "vsSameRange": "vs {range}",
+    "vsSameRangeYear": "vs same period {year}",
+    "vsPrevMonth": "vs last month",
+    "vsPrevYear": "vs {year}",
+    "byCategory": "By category",
+    "typeLabel": "Transaction type",
+    "total": "Total",
+    "other": "Other",
+    "itself": "itself",
+    "showSubcategories": "Show subcategories of {name}",
+    "viewTransactions": "View transactions",
+    "noExpense": "No spending yet",
+    "noIncome": "No income yet",
+    "trendSummary": "Over time, peak {max}",
+    "empty": "No transactions in {period}",
+    "trendExpense": "Spending trend",
+    "trendIncome": "Income trend"
   }
 }

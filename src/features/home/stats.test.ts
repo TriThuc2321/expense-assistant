@@ -11,6 +11,9 @@ describe('spentDelta', () => {
     expect(spentDelta(2, 3)).toEqual({ direction: 'down', percent: 33 });
     expect(spentDelta(100, 100)).toEqual({ direction: 'flat', percent: 0 });
   });
+  it('is flat when the change rounds to 0%', () => {
+    expect(spentDelta(1004, 1000)).toEqual({ direction: 'flat', percent: 0 });
+  });
 });
 
 describe('lastRangeLabel', () => {

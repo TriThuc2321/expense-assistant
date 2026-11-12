@@ -6,7 +6,9 @@ import {
   monthRange,
   monthStart,
   sameRangeLastMonth,
+  sameRangeLastYear,
   todayVn,
+  yearRange,
 } from './dates';
 
 describe('dates', () => {
@@ -39,6 +41,42 @@ describe('dates', () => {
       from: '2026-09-01',
       to: '2026-09-30',
     });
+    expect(sameRangeLastMonth('2026-03-31')).toEqual({
+      from: '2026-02-01',
+      to: '2026-02-28',
+    });
+  });
+});
+
+describe('yearRange', () => {
+  it('covers the calendar year', () => {
+    expect(yearRange(2025)).toEqual({ from: '2025-01-01', to: '2025-12-31' });
+  });
+});
+
+describe('sameRangeLastYear', () => {
+  it('mirrors today in the previous year', () => {
+    expect(sameRangeLastYear('2026-11-11')).toEqual({
+      from: '2025-01-01',
+      to: '2025-11-11',
+    });
+  });
+  it('maps Feb 29 to Feb 28', () => {
+    expect(sameRangeLastYear('2028-02-29')).toEqual({
+      from: '2027-01-01',
+      to: '2027-02-28',
+    });
+  });
+});
+
+describe('sameRangeLastMonth clamping', () => {
+  it('clamps the 31st to a 30-day month', () => {
+    expect(sameRangeLastMonth('2026-12-31')).toEqual({
+      from: '2026-11-01',
+      to: '2026-11-30',
+    });
+  });
+  it('clamps to February', () => {
     expect(sameRangeLastMonth('2026-03-31')).toEqual({
       from: '2026-02-01',
       to: '2026-02-28',

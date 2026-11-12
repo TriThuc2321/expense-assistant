@@ -10,11 +10,11 @@ import { useTxSheet } from '@/features/tx-sheet/tx-sheet-provider';
 
 import type { NavItem } from './nav';
 
-import { NAV_ITEMS, isNavActive } from './nav';
+import { TAB_ITEMS, isTabActive } from './nav';
 
 function Tab({ item, pathname }: { item: NavItem; pathname: string }) {
   const t = useTranslations('nav');
-  const active = isNavActive(item.href, pathname);
+  const active = isTabActive(item.href, pathname);
   const Icon = item.icon;
 
   return (
@@ -38,8 +38,8 @@ export function TabBar() {
   const t = useTranslations('nav');
   const pathname = usePathname();
   const { openNew } = useTxSheet();
-  const left = NAV_ITEMS.slice(0, 2);
-  const right = NAV_ITEMS.slice(2);
+  const left = TAB_ITEMS.slice(0, 2);
+  const right = TAB_ITEMS.slice(2);
 
   return (
     <nav

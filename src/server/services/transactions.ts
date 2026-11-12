@@ -360,7 +360,7 @@ export async function recentTransactions(
   return rows.map(toView);
 }
 
-async function sumRange(
+export async function sumRange(
   userId: string,
   type: TxType,
   from: string,

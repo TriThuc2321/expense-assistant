@@ -30,6 +30,7 @@
   "nav": {
     "home": "Tổng quan",
     "transactions": "Giao dịch",
+    "analyze": "Thống kê",
     "categories": "Danh mục",
     "settings": "Cài đặt",
     "main": "Điều hướng chính",
@@ -95,7 +96,8 @@
     "zaloLinkedBody": "Tag @{bot} trong nhóm hoặc nhắn riêng: “ăn phở 45k”, hay gửi ảnh hóa đơn.",
     "recent": "Gần đây",
     "seeAll": "Xem tất cả",
-    "recentEmpty": "Chưa có giao dịch nào"
+    "recentEmpty": "Chưa có giao dịch nào",
+    "viewAnalytics": "Xem chi tiết →"
   },
   "transactions": {
     "summary": "{count} giao dịch · chi <sum></sum>",
@@ -115,7 +117,10 @@
     "storePlaceholder": "Highlands, Grab…",
     "clear": "Xóa bộ lọc",
     "loadMore": "Xem thêm",
-    "empty": "Không có giao dịch khớp bộ lọc. Thử bỏ bớt điều kiện."
+    "empty": "Không có giao dịch khớp bộ lọc. Thử bỏ bớt điều kiện.",
+    "periodMonth": "Tháng {month}/{year}",
+    "periodYear": "Năm {year}",
+    "clearPeriod": "Bỏ lọc thời gian"
   },
   "settings": {
     "logout": "Đăng xuất",
@@ -169,5 +174,35 @@
     "forbidden": "Bạn không có quyền làm việc này",
     "cannot_modify_self": "Bạn không thể tự thay đổi tài khoản của mình",
     "unknown": "Có lỗi, thử lại sau nhé"
+  },
+  "analyze": {
+    "title": "Thống kê",
+    "month": "Tháng",
+    "year": "Năm",
+    "viewLabel": "Xem theo",
+    "previous": "Kỳ trước",
+    "next": "Kỳ sau",
+    "monthLabel": "Tháng {month}/{year}",
+    "yearLabel": "Năm {year}",
+    "income": "Thu",
+    "expense": "Chi",
+    "net": "Chênh lệch",
+    "vsSameRange": "so với {range}",
+    "vsSameRangeYear": "so với cùng kỳ {year}",
+    "vsPrevMonth": "so với tháng trước",
+    "vsPrevYear": "so với năm {year}",
+    "byCategory": "Theo danh mục",
+    "typeLabel": "Loại giao dịch",
+    "total": "Tổng",
+    "other": "Khác",
+    "itself": "chính nó",
+    "showSubcategories": "Xem mục con của {name}",
+    "viewTransactions": "Xem giao dịch",
+    "noExpense": "Chưa có khoản chi",
+    "noIncome": "Chưa có khoản thu",
+    "trendSummary": "Biểu đồ theo thời gian, cao nhất {max}",
+    "empty": "Chưa có giao dịch trong {period}",
+    "trendExpense": "Xu hướng chi",
+    "trendIncome": "Xu hướng thu"
   }
 }
