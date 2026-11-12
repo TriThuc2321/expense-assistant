@@ -204,5 +204,8 @@
     "empty": "Chưa có giao dịch trong {period}",
     "trendExpense": "Xu hướng chi",
     "trendIncome": "Xu hướng thu"
+  },
+  "reviewSmoke": {
+    "title": "Kiểm tra review"
   }
 }
